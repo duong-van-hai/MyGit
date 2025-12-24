@@ -1,25 +1,136 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-  <meta charset="utf-8">
-  <title>AR Hiro Demo</title>
-
-  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/2.2.1/aframe/build/aframe-ar.js"></script>
+    <meta charset="UTF-8">
+    <title>Hệ Thống Trắc Nghiệm Online</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px; background: #f0f2f5; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .question-box { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .timer { position: fixed; top: 20px; right: 20px; background: #e74c3c; color: white; padding: 10px 20px; border-radius: 30px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        
+        /* Màu sắc cho phần xem lại */
+        .correct { background-color: #d4edda; border-color: #c3e6cb; color: #155724; padding: 5px; border-radius: 4px; }
+        .wrong { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; padding: 5px; border-radius: 4px; }
+        .true-answer { font-weight: bold; text-decoration: underline; }
+        
+        button { background: #007bff; color: white; border: none; padding: 12px 25px; cursor: pointer; border-radius: 6px; font-size: 16px; transition: 0.3s; }
+        button:hover { background: #0056b3; }
+        input[type="text"] { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+    </style>
 </head>
-
 <body>
-  <a-scene embedded arjs="sourceType: webcam;">
 
-    <!-- GẮN HIRO -->
-    <a-marker preset="hiro">
+<div class="container">
+    <div id="setup-box">
+        <h2>📝 Bài Kiểm Tra Trắc Nghiệm</h2>
+        <p>Vui lòng nhập tên để bắt đầu bài làm (Thời gian: 15 phút)</p>
+        <input type="text" id="student-name" placeholder="Họ và tên của học sinh...">
+        <button onclick="startQuiz()">Bắt đầu làm bài</button>
+    </div>
 
-      <!-- VẬT THỂ -->
-      <a-box position="0 0.5 0" color="red"></a-box>
+    <div id="quiz-box" style="display:none;">
+        <div class="timer" id="timer">15:00</div>
+        <h3 id="display-name"></h3>
+        <hr>
+        <div id="questions-container"></div>
+        <button onclick="submitQuiz()">Nộp bài hoàn tất</button>
+    </div>
 
-    </a-marker>
+    <div id="result-box" style="display:none;">
+        <div style="text-align: center;">
+            <h2 id="status-title">Kết Quả Bài Làm</h2>
+            <div id="score-summary" style="font-size: 1.2em; margin-bottom: 20px;"></div>
+            <button onclick="location.reload()">Làm lại bài mới</button>
+        </div>
+        <hr>
+        <h3>Chi tiết bài làm:</h3>
+        <div id="review-container"></div>
+    </div>
+</div>
 
-    <a-entity camera></a-entity>
-  </a-scene>
+<script>
+    const questions = [
+        { q: "Hành tinh nào gần Mặt trời nhất?", a: ["Thủy tinh", "Kim tinh", "Hỏa tinh", "Trái đất"], c: 0 },
+        { q: "Số nguyên tố nhỏ nhất là số nào?", a: ["0", "1", "2", "3"], c: 2 },
+        { q: "Đại dương nào lớn nhất thế giới?", a: ["Ấn Độ Dương", "Đại Tây Dương", "Bắc Băng Dương", "Thái Bình Dương"], c: 3 },
+        { q: "Quốc kỳ Việt Nam có mấy màu?", a: ["1 màu", "2 màu", "3 màu", "4 màu"], c: 1 },
+        { q: "Lực hút của Trái đất gọi là gì?", a: ["Trọng lực", "Ma sát", "Đẩy", "Từ trường"], c: 0 }
+    ];
+
+    // Tạo thêm câu hỏi cho đủ 20 câu
+    for(let i=6; i<=20; i++) {
+        questions.push({ q: `Câu hỏi kiến thức số ${i}: Đáp án đúng là lựa chọn đầu tiên.`, a: ["Đáp án đúng", "Sai A", "Sai B", "Sai C"], c: 0 });
+    }
+
+    let timeLeft = 15 * 60;
+    let timerInterval;
+
+    function startQuiz() {
+        const name = document.getElementById('student-name').value;
+        if (!name) { alert("Em hãy nhập họ tên trước nhé!"); return; }
+        document.getElementById('setup-box').style.display = 'none';
+        document.getElementById('quiz-box').style.display = 'block';
+        document.getElementById('display-name').innerText = "Học sinh: " + name;
+        renderQuestions();
+        startTimer();
+    }
+
+    function renderQuestions() {
+        const container = document.getElementById('questions-container');
+        questions.forEach((item, index) => {
+            let html = `<div class="question-box">
+                <p><strong>Câu ${index + 1}:</strong> ${item.q}</p>`;
+            item.a.forEach((opt, i) => {
+                html += `<label style="display:block; margin: 5px 0;">
+                            <input type="radio" name="q${index}" value="${i}"> ${opt}
+                         </label>`;
+            });
+            html += `</div>`;
+            container.innerHTML += html;
+        });
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            let min = Math.floor(timeLeft / 60);
+            let sec = timeLeft % 60;
+            document.getElementById('timer').innerText = `${min}:${sec < 10 ? '0' : ''}${sec}`;
+            if (timeLeft <= 0) { clearInterval(timerInterval); submitQuiz(); }
+        }, 1000);
+    }
+
+    function submitQuiz() {
+        clearInterval(timerInterval);
+        let score = 0;
+        const reviewContainer = document.getElementById('review-container');
+        reviewContainer.innerHTML = ''; 
+
+        questions.forEach((item, index) => {
+            const selected = document.querySelector(`input[name="q${index}"]:checked`);
+            const selectedIdx = selected ? parseInt(selected.value) : null;
+            const isCorrect = selectedIdx === item.c;
+            if (isCorrect) score++;
+
+            // Tạo phần review
+            let reviewHtml = `<div class="question-box ${isCorrect ? 'correct' : 'wrong'}">
+                <p><strong>Câu ${index + 1}: ${item.q}</strong></p>
+                <p> - Câu trả lời của em: ${selectedIdx !== null ? item.a[selectedIdx] : '<span style="color:red">Bỏ trống</span>'}</p>
+                ${!isCorrect ? `<p class="true-answer"> -> Đáp án đúng: ${item.a[item.c]}</p>` : '<span>(Chính xác!)</span>'}
+            </div>`;
+            reviewContainer.innerHTML += reviewHtml;
+        });
+
+        document.getElementById('quiz-box').style.display = 'none';
+        document.getElementById('result-box').style.display = 'block';
+        document.getElementById('score-summary').innerHTML = `
+            Học sinh: <strong>${document.getElementById('student-name').value}</strong><br>
+            Số câu đúng: <strong style="color:green">${score}/${questions.length}</strong> - 
+            Điểm số: <strong style="color:red">${(score/questions.length*10).toFixed(2)}</strong>
+        `;
+        window.scrollTo(0, 0); // Quay lên đầu trang để xem điểm
+    }
+</script>
 </body>
 </html>
