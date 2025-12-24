@@ -2,7 +2,8 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Hệ Thống Học Tập Thông Minh</title>
+    <title>Hệ Thống Quản Lý Học Tập</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
     <style>
         :root { --primary: #2c3e50; --secondary: #3498db; --success: #27ae60; --danger: #e74c3c; }
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding: 20px; }
@@ -13,42 +14,36 @@
         .card:hover { border-color: var(--secondary); background: #f1f9ff; }
         button { background: var(--secondary); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
         input, textarea, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .timer { position: fixed; top: 20px; right: 20px; background: var(--danger); color: white; padding: 10px 20px; border-radius: 30px; font-weight: bold; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        table, th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background: #f8f9fa; }
-        .correct-bg { background: #d4edda; }
-        .wrong-bg { background: #f8d7da; }
+        table, th, td { border: 1px solid #ddd; padding: 12px; }
+        .correct-bg { background: #d4edda; border-left: 5px solid #28a745; margin-bottom: 10px; padding: 10px; }
+        .wrong-bg { background: #f8d7da; border-left: 5px solid #dc3545; margin-bottom: 10px; padding: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="role-page">
-        <h1 style="text-align:center">Chào mừng bạn đến với App Học Tập</h1>
+        <h1 style="text-align:center">Hệ Thống Học Tập Tích Hợp</h1>
         <div class="menu-grid">
-            <div class="card" onclick="showPage('student-auth')">
-                <h2>👨‍🎓 HỌC SINH</h2>
-                <p>Vào học lý thuyết và làm bài tập</p>
-            </div>
-            <div class="card" onclick="showPage('teacher-auth')">
-                <h2>👨‍🏫 GIÁO VIÊN</h2>
-                <p>Quản lý nội dung và xem điểm số</p>
-            </div>
+            <div class="card" onclick="showPage('student-auth')"><h2>👨‍🎓 HỌC SINH</h2></div>
+            <div class="card" onclick="showPage('teacher-auth')"><h2>👨‍🏫 GIÁO VIÊN</h2></div>
         </div>
     </div>
 
     <div id="student-auth" class="hidden">
         <button onclick="showPage('role-page')">← Quay lại</button>
-        <h2>Nhập thông tin để vào lớp</h2>
+        <h2>Thông tin học sinh</h2>
         <input type="text" id="std-name" placeholder="Họ và tên của em...">
-        <button onclick="loginStudent()">Vào học ngay</button>
+        <button onclick="loginStudent()">Vào học</button>
     </div>
 
     <div id="student-home" class="hidden">
         <h2 id="welcome-std"></h2>
         <div class="menu-grid">
-            <div class="card" onclick="showTheory()">📖 Xem Lý Thuyết</div>
-            <div class="card" onclick="startQuiz()">📝 Làm Bài Kiểm Tra</div>
+            <div class="card" onclick="showTheory()">📖 Lý Thuyết</div>
+            <div class="card" onclick="startQuiz()">📝 Kiểm Tra</div>
         </div>
         <button onclick="showPage('role-page')" style="background:var(--danger)">Đăng xuất</button>
     </div>
@@ -56,67 +51,68 @@
     <div id="teacher-auth" class="hidden">
         <button onclick="showPage('role-page')">← Quay lại</button>
         <h2>Đăng nhập Giáo viên</h2>
-        <input type="password" id="tea-pass" placeholder="Nhập mật khẩu (mặc định: 123)">
-        <button onclick="loginTeacher()">Đăng nhập</button>
+        <input type="password" id="tea-pass" placeholder="Nhập mật khẩu quản lý">
+        <button onclick="loginTeacher()">Xác nhận</button>
     </div>
 
     <div id="teacher-home" class="hidden">
-        <h2>Bảng điều khiển Giáo viên</h2>
+        <h2>Quản lý nội dung</h2>
         <div class="menu-grid">
-            <button onclick="showTeacherSection('create-theory')">➕ Nhập Lý Thuyết</button>
-            <button onclick="showTeacherSection('create-quiz')">➕ Tạo Bài Kiểm Tra</button>
-            <button onclick="showResults()">📊 Xem Điểm Học Sinh</button>
+            <button onclick="showTeacherSection('create-theory')">📝 Nhập Lý Thuyết</button>
+            <button onclick="showTeacherSection('create-quiz')">📁 Nhập Đề Từ File Word</button>
+            <button onclick="showResults()">📊 Xem Điểm Số</button>
         </div>
         
         <div id="create-theory" class="teacher-sec hidden">
-            <h3>Nhập nội dung bài học</h3>
-            <textarea id="theory-content" rows="5" placeholder="Dán nội dung lý thuyết vào đây..."></textarea>
+            <h3>Nội dung bài học</h3>
+            <textarea id="theory-content" rows="10" placeholder="Soạn thảo lý thuyết tại đây..."></textarea>
             <button onclick="saveTheory()">Lưu bài học</button>
         </div>
 
         <div id="create-quiz" class="teacher-sec hidden">
-            <h3>Tạo câu hỏi mới</h3>
-            <p>(Hiện tại hệ thống hỗ trợ thêm từng câu vào kho dữ liệu)</p>
-            <input type="text" id="new-q" placeholder="Câu hỏi">
-            <input type="text" id="new-a0" placeholder="Đáp án đúng (A)">
-            <input type="text" id="new-a1" placeholder="Đáp án sai (B)">
-            <input type="text" id="new-a2" placeholder="Đáp án sai (C)">
-            <input type="text" id="new-a3" placeholder="Đáp án sai (D)">
-            <button onclick="saveQuestion()">Thêm câu hỏi</button>
+            <h3>Cài đặt bài kiểm tra</h3>
+            <label>Chọn thời gian làm bài:</label>
+            <select id="set-duration">
+                <option value="15">15 Phút</option>
+                <option value="20">20 Phút</option>
+                <option value="45">45 Phút</option>
+            </select>
+            <label>Chọn file Word (Định dạng: Câu hỏi, sau đó là 4 đáp án, đáp án đúng phải <u>gạch chân</u>):</label>
+            <input type="file" id="word-file" accept=".docx">
+            <p id="file-status" style="color: blue;"></p>
+            <button onclick="parseWordFile()" style="background: var(--success);">Tải đề lên hệ thống</button>
         </div>
 
         <div id="results-view" class="teacher-sec hidden"></div>
         <br>
-        <button onclick="showPage('role-page')" style="background:var(--danger)">Đăng xuất</button>
+        <button onclick="showPage('role-page')" style="background:var(--danger)">Thoát</button>
     </div>
 
     <div id="display-area" class="hidden">
-        <button onclick="showPage('student-home')">← Quay lại Menu</button>
-        <div id="content-body"></div>
+        <div class="timer hidden" id="quiz-timer">00:00</div>
+        <button id="back-btn" onclick="exitContent()">← Quay lại</button>
+        <div id="content-body" style="margin-top:20px"></div>
     </div>
 </div>
 
 <script>
-    // DỮ LIỆU MẪU (Sẽ được lưu vào LocalStorage)
-    let db = JSON.parse(localStorage.getItem('edu_db')) || {
-        theory: "Chào mừng các em. Hãy bắt đầu bài học đầu tiên về Thực tế tăng cường (AR)...",
-        questions: [
-            {q: "AR viết tắt của từ gì?", a: ["Augmented Reality", "Art Reality", "Auto Real", "All Real"], c: 0}
-        ],
+    let db = JSON.parse(localStorage.getItem('edu_db_v2')) || {
+        theory: "Nội dung lý thuyết chưa có.",
+        questions: [],
+        duration: 15,
         results: []
     };
 
-    function saveDB() { localStorage.setItem('edu_db', JSON.stringify(db)); }
+    function saveDB() { localStorage.setItem('edu_db_v2', JSON.stringify(db)); }
 
     function showPage(id) {
         document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
         document.getElementById(id).classList.remove('hidden');
     }
 
-    // LOGIC GIÁO VIÊN
     function loginTeacher() {
         if(document.getElementById('tea-pass').value === '123') showPage('teacher-home');
-        else alert('Sai mật khẩu!');
+        else alert('Mật khẩu không đúng!');
     }
 
     function showTeacherSection(id) {
@@ -124,72 +120,125 @@
         document.getElementById(id).classList.remove('hidden');
     }
 
+    // --- XỬ LÝ FILE WORD ---
+    function parseWordFile() {
+        const fileInput = document.getElementById('word-file');
+        if (!fileInput.files[0]) return alert("Hãy chọn file .docx");
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const arrayBuffer = e.target.result;
+            // Mammoth sẽ giữ định dạng gạch chân dưới dạng thẻ <u>
+            mammoth.convertToHtml({arrayBuffer: arrayBuffer})
+                .then(function(result) {
+                    const html = result.value;
+                    processHtmlToQuestions(html);
+                });
+        };
+        reader.readAsArrayBuffer(fileInput.files[0]);
+    }
+
+    function processHtmlToQuestions(html) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        const paragraphs = Array.from(tempDiv.querySelectorAll('p')).map(p => p.innerHTML);
+        
+        let newQuestions = [];
+        // Giả định: 1 câu hỏi + 4 đáp án = 5 dòng liên tiếp
+        for(let i = 0; i < paragraphs.length; i += 5) {
+            if(paragraphs[i+4]) {
+                let questionText = paragraphs[i].replace(/<\/?[^>]+(>|$)/g, ""); // Xóa tag html ở câu hỏi
+                let options = [paragraphs[i+1], paragraphs[i+2], paragraphs[i+3], paragraphs[i+4]];
+                let correctIdx = options.findIndex(opt => opt.includes('<u>'));
+                
+                // Sau khi tìm xong đáp án gạch chân, xóa tag html để hiển thị sạch
+                let cleanOptions = options.map(opt => opt.replace(/<\/?[^>]+(>|$)/g, ""));
+                
+                newQuestions.push({
+                    q: questionText,
+                    a: cleanOptions,
+                    c: correctIdx !== -1 ? correctIdx : 0
+                });
+            }
+        }
+        db.questions = newQuestions;
+        db.duration = parseInt(document.getElementById('set-duration').value);
+        saveDB();
+        document.getElementById('file-status').innerText = `Đã tải thành công ${newQuestions.length} câu hỏi!`;
+    }
+
     function saveTheory() {
         db.theory = document.getElementById('theory-content').value;
         saveDB();
-        alert('Đã lưu lý thuyết!');
-    }
-
-    function saveQuestion() {
-        const q = {
-            q: document.getElementById('new-q').value,
-            a: [document.getElementById('new-a0').value, document.getElementById('new-a1').value, document.getElementById('new-a2').value, document.getElementById('new-a3').value],
-            c: 0
-        };
-        db.questions.push(q);
-        saveDB();
-        alert('Đã thêm câu hỏi!');
+        alert('Đã lưu!');
     }
 
     function showResults() {
         showTeacherSection('results-view');
-        let html = '<h3>Danh sách điểm</h3><table><tr><th>Học sinh</th><th>Điểm</th><th>Thời gian</th></tr>';
-        db.results.forEach(r => {
-            html += `<tr><td>${r.name}</td><td>${r.score}</td><td>${r.date}</td></tr>`;
-        });
+        let html = '<h3>Bảng điểm</h3><table><tr><th>Học sinh</th><th>Điểm</th><th>Ngày</th></tr>';
+        db.results.forEach(r => html += `<tr><td>${r.name}</td><td>${r.score}</td><td>${r.date}</td></tr>`);
         document.getElementById('results-view').innerHTML = html + '</table>';
     }
 
-    // LOGIC HỌC SINH
+    // --- PHẦN HỌC SINH ---
     let currentStudent = "";
+    let timerInterval;
+
     function loginStudent() {
         currentStudent = document.getElementById('std-name').value;
-        if(!currentStudent) return alert('Nhập tên em ơi!');
-        document.getElementById('welcome-std').innerText = "Chào " + currentStudent;
+        if(!currentStudent) return alert('Nhập tên em nhé!');
+        document.getElementById('welcome-std').innerText = "Chào học sinh: " + currentStudent;
         showPage('student-home');
     }
 
     function showTheory() {
         showPage('display-area');
-        document.getElementById('content-body').innerHTML = `<h2>Bài học lý thuyết</h2><div style="white-space:pre-wrap">${db.theory}</div>`;
+        document.getElementById('quiz-timer').classList.add('hidden');
+        document.getElementById('content-body').innerHTML = `<h2>Lý thuyết</h2><div style="white-space:pre-wrap">${db.theory}</div>`;
     }
 
     function startQuiz() {
+        if(db.questions.length === 0) return alert("Chưa có câu hỏi nào!");
         showPage('display-area');
-        let html = `<h2>Bài kiểm tra</h2><div id="quiz-run">`;
+        const timerEl = document.getElementById('quiz-timer');
+        timerEl.classList.remove('hidden');
+        
+        let html = `<h2>Bài kiểm tra (${db.duration} phút)</h2><div id="quiz-run">`;
         db.questions.forEach((q, i) => {
-            html += `<div class="question-box" style="margin-bottom:20px">
+            html += `<div style="margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:10px">
                 <p><strong>Câu ${i+1}: ${q.q}</strong></p>
                 ${q.a.map((opt, idx) => `<label style="display:block"><input type="radio" name="q${i}" value="${idx}"> ${opt}</label>`).join('')}
             </div>`;
         });
-        html += `<button onclick="submitQuiz()">Nộp bài</button></div>`;
+        html += `<button onclick="submitQuiz()" id="submit-btn" style="background:var(--success); width:100%; padding:15px">NỘP BÀI</button></div>`;
         document.getElementById('content-body').innerHTML = html;
+
+        let timeLeft = db.duration * 60;
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            let min = Math.floor(timeLeft / 60);
+            let sec = timeLeft % 60;
+            timerEl.innerText = `${min}:${sec < 10 ? '0' : ''}${sec}`;
+            if(timeLeft <= 0) { clearInterval(timerInterval); submitQuiz(); }
+        }, 1000);
     }
 
     function submitQuiz() {
+        clearInterval(timerInterval);
+        document.getElementById('quiz-timer').classList.add('hidden');
         let score = 0;
-        let reviewHtml = '<h2>Kết quả và Xem lại</h2>';
+        let reviewHtml = '<h2>Kết quả chi tiết</h2>';
+        
         db.questions.forEach((q, i) => {
             const selected = document.querySelector(`input[name="q${i}"]:checked`);
             const ansIdx = selected ? parseInt(selected.value) : -1;
             const isCorrect = ansIdx === q.c;
             if(isCorrect) score++;
 
-            reviewHtml += `<div class="card ${isCorrect ? 'correct-bg' : 'wrong-bg'}">
-                <p><strong>${q.q}</strong></p>
-                <p>Bạn chọn: ${ansIdx !== -1 ? q.a[ansIdx] : 'Bỏ trống'}</p>
-                <p>Đáp án đúng: ${q.a[q.c]}</p>
+            reviewHtml += `<div class="${isCorrect ? 'correct-bg' : 'wrong-bg'}">
+                <p><strong>Câu ${i+1}: ${q.q}</strong></p>
+                <p>Em chọn: ${ansIdx !== -1 ? q.a[ansIdx] : 'Không trả lời'}</p>
+                ${!isCorrect ? `<p style="font-weight:bold">Đáp án đúng: ${q.a[q.c]}</p>` : ''}
             </div>`;
         });
 
@@ -197,7 +246,19 @@
         db.results.push({ name: currentStudent, score: finalScore, date: new Date().toLocaleString() });
         saveDB();
 
-        document.getElementById('content-body').innerHTML = `<h3>Điểm của bạn: ${finalScore}</h3>` + reviewHtml;
+        document.getElementById('content-body').innerHTML = `
+            <div style="text-align:center; padding:20px; background:#e8f4fd; border-radius:10px">
+                <h3>Điểm số của ${currentStudent}</h3>
+                <h1 style="font-size:3em; color:var(--danger)">${finalScore}</h1>
+                <p>Đúng ${score}/${db.questions.length} câu</p>
+            </div>
+            ${reviewHtml}`;
+        window.scrollTo(0,0);
+    }
+
+    function exitContent() {
+        clearInterval(timerInterval);
+        showPage('student-home');
     }
 </script>
 </body>
