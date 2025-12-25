@@ -2,31 +2,28 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Snake Duo - ID Ngắn</title>
+    <title>Snake Duo 1vs1 - Logic Pro</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; background: #1a1a1a; color: white; margin: 0; padding: 20px; }
-        canvas { border: 4px solid #333; background: #000; border-radius: 8px; }
-        .controls { background: #2d2d2d; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; width: 100%; max-width: 400px; }
-        #peer-id-display { font-size: 1.5em; font-weight: bold; color: #2ecc71; margin-bottom: 10px; background: #111; padding: 10px; border-radius: 8px; border: 1px dashed #2ecc71; }
-        input { padding: 12px; border-radius: 8px; border: none; width: 60%; font-size: 1em; text-align: center; }
-        button { padding: 12px 20px; border-radius: 8px; border: none; background: #1a73e8; color: white; cursor: pointer; font-weight: bold; margin-left: 5px; }
-        .status { margin-top: 15px; font-weight: bold; color: #ffc107; }
+        .controls { background: #2d2d2d; padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 15px; width: 100%; max-width: 420px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        #peer-id-display { font-size: 1.8em; font-weight: bold; color: #2ecc71; background: #000; padding: 5px 15px; border-radius: 8px; display: inline-block; margin: 10px 0; border: 2px solid #2ecc71; }
+        input { padding: 10px; border-radius: 5px; border: none; width: 50%; font-size: 1.1em; text-align: center; }
+        button { padding: 10px 20px; border-radius: 5px; border: none; background: #1a73e8; color: white; cursor: pointer; font-weight: bold; }
+        canvas { border: 5px solid #333; background: #000; border-radius: 5px; }
+        .status { margin-top: 10px; color: #ffc107; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <h1>SNAKE DUO 1vs1</h1>
-
     <div class="controls">
-        <div style="font-size: 0.9em; color: #aaa; margin-bottom: 5px;">MÃ PHÒNG CỦA BẠN:</div>
-        <div id="peer-id-display">ĐANG TẠO...</div>
-        
-        <div style="margin-top: 15px;">
-            <input type="text" id="remote-id" placeholder="Nhập mã bạn bè">
-            <button onclick="connectToFriend()">KẾT NỐI</button>
+        <div style="font-size: 0.8em; color: #aaa;">MÃ PHÒNG:</div>
+        <div id="peer-id-display">....</div>
+        <div>
+            <input type="text" id="remote-id" placeholder="Nhập mã bạn">
+            <button onclick="connectToFriend()">VÀO PHÒNG</button>
         </div>
-        <div class="status" id="status">Chờ kết nối...</div>
+        <div class="status" id="status">Đang khởi tạo Peer...</div>
     </div>
 
     <canvas id="gameCanvas" width="400" height="400"></canvas>
@@ -35,80 +32,124 @@
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const gridSize = 20;
-    const tileCount = canvas.width / gridSize;
+    const tileCount = 20;
 
-    let snake1 = [{x: 10, y: 10}], snake2 = [{x: 5, y: 5}], food = {x: 15, y: 15};
+    let snake1 = [{x: 15, y: 10}], snake2 = [{x: 5, y: 10}], food = {x: 10, y: 10};
     let dir1 = {x: 0, y: 0}, dir2 = {x: 0, y: 0};
-    let isHost = false, conn;
+    let nextDir1 = {x: 0, y: 0}, nextDir2 = {x: 0, y: 0};
+    let isHost = false, conn, gameActive = false;
 
-    // TẠO ID NGẮN (4 chữ số)
+    // Khởi tạo Peer với ID 4 số
     const shortId = Math.floor(1000 + Math.random() * 9000).toString();
-    const peer = new Peer(shortId); 
+    const peer = new Peer(shortId);
 
-    peer.on('open', (id) => {
+    peer.on('open', id => {
         document.getElementById('peer-id-display').innerText = id;
+        document.getElementById('status').innerText = "Sẵn sàng! Hãy gửi mã cho bạn bè.";
     });
 
-    peer.on('connection', (c) => {
+    peer.on('connection', c => {
         conn = c; isHost = true;
-        setupGameSync();
-        document.getElementById('status').innerText = "Đã kết nối! Bạn là chủ phòng.";
-        startGame();
+        setupSync();
+        document.getElementById('status').innerText = "Đã kết nối! Bạn là Rắn Xanh Lá.";
+        gameActive = true;
+        runGame();
     });
 
     function connectToFriend() {
-        const remoteId = document.getElementById('remote-id').value;
-        if(!remoteId) return alert("Hãy nhập mã phòng!");
-        conn = peer.connect(remoteId);
+        const rid = document.getElementById('remote-id').value;
+        conn = peer.connect(rid);
         isHost = false;
-        setupGameSync();
+        setupSync();
         document.getElementById('status').innerText = "Đang kết nối...";
     }
 
-    function setupGameSync() {
+    function setupSync() {
         conn.on('open', () => {
-            document.getElementById('status').innerText = "VÀO TRẬN!";
-            startGame();
+            document.getElementById('status').innerText = isHost ? "TRẬN ĐẤU BẮT ĐẦU!" : "Đã kết nối! Bạn là Rắn Xanh Dương.";
+            gameActive = true;
+            if(!isHost) runGame();
         });
-        conn.on('data', (data) => {
-            if (isHost) dir2 = data.dir;
-            else { snake1 = data.s1; snake2 = data.s2; food = data.food; }
+        conn.on('data', data => {
+            if (isHost) nextDir2 = data.dir; // Host nhận hướng đi từ khách
+            else { snake1 = data.s1; snake2 = data.s2; food = data.food; } // Khách nhận data vẽ hình
         });
     }
 
+    // Logic chặn quay đầu 180 độ
     window.addEventListener("keydown", e => {
-        let nDir = {x: 0, y: 0};
-        if (["ArrowUp", "w"].includes(e.key)) nDir = {x: 0, y: -1};
-        else if (["ArrowDown", "s"].includes(e.key)) nDir = {x: 0, y: 1};
-        else if (["ArrowLeft", "a"].includes(e.key)) nDir = {x: -1, y: 0};
-        else if (["ArrowRight", "d"].includes(e.key)) nDir = {x: 1, y: 0};
-        if (isHost) dir1 = nDir; else if (conn) conn.send({ dir: nDir });
+        let d = {x: 0, y: 0};
+        if (e.key === "ArrowUp" || e.key === "w") d = {x: 0, y: -1};
+        else if (e.key === "ArrowDown" || e.key === "s") d = {x: 0, y: 1};
+        else if (e.key === "ArrowLeft" || e.key === "a") d = {x: -1, y: 0};
+        else if (e.key === "ArrowRight" || e.key === "d") d = {x: 1, y: 0};
+
+        if (d.x === 0 && d.y === 0) return;
+
+        if (isHost) {
+            if (d.x !== -dir1.x || d.y !== -dir1.y) nextDir1 = d;
+        } else if (conn) {
+            // Khách gửi hướng muốn đi, Host sẽ check logic sau
+            conn.send({ dir: d });
+        }
     });
 
     function update() {
-        if (!isHost) return;
-        moveSnake(snake1, dir1);
-        moveSnake(snake2, dir2);
-        if (conn?.open) conn.send({ s1: snake1, s2: snake2, food: food });
+        if (!isHost || !gameActive) return;
+
+        dir1 = nextDir1;
+        dir2 = nextDir2;
+
+        // Cập nhật Rắn 1
+        if (dir1.x !== 0 || dir1.y !== 0) {
+            let h1 = {x: snake1[0].x + dir1.x, y: snake1[0].y + dir1.y};
+            if(h1.x<0 || h1.x>=tileCount || h1.y<0 || h1.y>=tileCount) resetGame(); // Đâm tường
+            snake1.unshift(h1);
+            if (h1.x === food.x && h1.y === food.y) spawnFood(); else snake1.pop();
+        }
+
+        // Cập nhật Rắn 2
+        if (dir2.x !== 0 || dir2.y !== 0) {
+            let h2 = {x: snake2[0].x + dir2.x, y: snake2[0].y + dir2.y};
+            if(h2.x<0 || h2.x>=tileCount || h2.y<0 || h2.y>=tileCount) resetGame(); // Đâm tường
+            snake2.unshift(h2);
+            if (h2.x === food.x && h2.y === food.y) spawnFood(); else snake2.pop();
+        }
+
+        // Gửi dữ liệu đồng bộ
+        if (conn && conn.open) conn.send({ s1: snake1, s2: snake2, food: food });
     }
 
-    function moveSnake(s, d) {
-        if(d.x === 0 && d.y === 0) return;
-        let head = {x: s[0].x + d.x, y: s[0].y + d.y};
-        s.unshift(head);
-        if (head.x === food.x && head.y === food.y) spawnFood(); else s.pop();
+    function spawnFood() {
+        food = { x: Math.floor(Math.random()*tileCount), y: Math.floor(Math.random()*tileCount) };
     }
 
-    function spawnFood() { food = { x: Math.floor(Math.random()*tileCount), y: Math.floor(Math.random()*tileCount) }; }
+    function resetGame() {
+        snake1 = [{x: 15, y: 10}]; snake2 = [{x: 5, y: 10}];
+        dir1 = {x:0,y:0}; dir2 = {x:0,y:0};
+        nextDir1 = {x:0,y:0}; nextDir2 = {x:0,y:0};
+        spawnFood();
+    }
 
     function draw() {
         ctx.fillStyle = "black"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "#2ecc71"; snake1.forEach(p => ctx.fillRect(p.x*gridSize, p.y*gridSize, 18, 18));
-        ctx.fillStyle = "#3498db"; snake2.forEach(p => ctx.fillRect(p.x*gridSize, p.y*gridSize, 18, 18));
-        ctx.fillStyle = "#e74c3c"; ctx.fillRect(food.x*gridSize, food.y*gridSize, 18, 18);
+        
+        // Rắn 1 - Chủ (Xanh lá)
+        ctx.fillStyle = "#2ecc71";
+        snake1.forEach(p => ctx.fillRect(p.x*gridSize, p.y*gridSize, gridSize-2, gridSize-2));
+
+        // Rắn 2 - Khách (Xanh dương)
+        ctx.fillStyle = "#3498db";
+        snake2.forEach(p => ctx.fillRect(p.x*gridSize, p.y*gridSize, gridSize-2, gridSize-2));
+
+        // Mồi (Đỏ)
+        ctx.fillStyle = "#e74c3c";
+        ctx.fillRect(food.x*gridSize, food.y*gridSize, gridSize-2, gridSize-2);
     }
 
-    function startGame() { setInterval(() => { update(); draw(); }, 120); }
+    function runGame() {
+        setInterval(() => { update(); draw(); }, 150);
+    }
 </script>
 </body>
 </html>
