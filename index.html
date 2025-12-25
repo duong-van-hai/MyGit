@@ -2,34 +2,30 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Snake Duo 1vs1 - Bản Full Logic</title>
+    <title>Sâu Săn Mồi Đối Kháng</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; background: #1a1a1a; color: white; margin: 0; padding: 20px; }
-        .controls { background: #2d2d2d; padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 15px; width: 100%; max-width: 420px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        #peer-id-display { font-size: 1.8em; font-weight: bold; color: #2ecc71; background: #000; padding: 5px 15px; border-radius: 8px; display: inline-block; margin: 10px 0; border: 2px solid #2ecc71; }
-        input { padding: 10px; border-radius: 5px; border: none; width: 40%; font-size: 1.1em; text-align: center; }
-        button { padding: 10px 20px; border-radius: 5px; border: none; background: #1a73e8; color: white; cursor: pointer; font-weight: bold; }
-        canvas { border: 5px solid #333; background: #000; border-radius: 5px; }
-        .status { margin-top: 10px; color: #ffc107; font-weight: bold; }
-        #overlay { position: absolute; top: 300px; display: none; background: rgba(0,0,0,0.8); padding: 20px; border-radius: 10px; text-align: center; border: 2px solid white; }
+        .header { background: #2d2d2d; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 15px; width: 100%; max-width: 420px; }
+        .status { color: #ffc107; font-weight: bold; margin-bottom: 10px; }
+        canvas { border: 5px solid #333; background: #000; border-radius: 5px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; color: white; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn-start { background: #27ae60; display: none; }
+        .btn-start:hover { background: #2ecc71; }
+        #overlay { position: absolute; top: 350px; display: none; background: rgba(0,0,0,0.9); padding: 30px; border-radius: 15px; text-align: center; border: 3px solid #2ecc71; z-index: 100; }
     </style>
 </head>
 <body>
 
-    <div class="controls">
-        <div style="font-size: 0.8em; color: #aaa;">MÃ PHÒNG:</div>
-        <div id="peer-id-display">....</div>
-        <div>
-            <input type="text" id="remote-id" placeholder="Nhập mã bạn">
-            <button onclick="connectToFriend()">VÀO PHÒNG</button>
-        </div>
-        <div class="status" id="status">Đang khởi tạo...</div>
+    <div class="header">
+        <h1>SNAKE 1vs1</h1>
+        <div id="status" class="status">Đang tìm đối thủ...</div>
+        <button id="start-btn" class="btn btn-start" onclick="requestStart()">BẮT ĐẦU CHƠI</button>
     </div>
 
     <div id="overlay">
         <h2 id="winner-text"></h2>
-        <button onclick="requestReset()" style="background: #27ae60;">CHƠI LẠI</button>
+        <button class="btn" style="background:#1a73e8" onclick="location.reload()">CHƠI LẠI</button>
     </div>
 
     <canvas id="gameCanvas" width="400" height="400"></canvas>
@@ -37,50 +33,82 @@
 <script>
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
-    const gridSize = 20;
-    const tileCount = 20;
+    const gridSize = 20, tileCount = 20;
 
     let snake1 = [{x: 15, y: 10}], snake2 = [{x: 5, y: 10}], food = {x: 10, y: 10};
     let dir1 = {x: 0, y: 0}, dir2 = {x: 0, y: 0};
     let nextDir1 = {x: 0, y: 0}, nextDir2 = {x: 0, y: 0};
     let isHost = false, conn, gameActive = false, gameInterval;
 
-    const shortId = Math.floor(1000 + Math.random() * 9000).toString();
-    const peer = new Peer(shortId);
+    // Tên phòng cố định - Hai máy vào cùng link này sẽ tự thấy nhau
+    const ROOM_ID = "phong-hoc-cong-nghe-v1"; 
 
-    peer.on('open', id => {
-        document.getElementById('peer-id-display').innerText = id;
-        document.getElementById('status').innerText = "Sẵn sàng!";
+    // Khởi tạo kết nối
+    const peer = new Peer(); 
+
+    peer.on('open', (id) => {
+        // Thử kết nối tới phòng mặc định
+        const masterConn = peer.connect(ROOM_ID);
+        masterConn.on('open', () => {
+            conn = masterConn;
+            isHost = false;
+            setupSync();
+            document.getElementById('status').innerText = "Đã thấy Chủ phòng! Chờ lệnh bắt đầu.";
+        });
+
+        masterConn.on('error', () => {
+            // Nếu không có ai, mình làm chủ phòng
+            const peerHost = new Peer(ROOM_ID);
+            peerHost.on('open', () => {
+                document.getElementById('status').innerText = "Bạn là Chủ phòng. Chờ người thứ 2...";
+            });
+            peerHost.on('connection', (c) => {
+                conn = c;
+                isHost = true;
+                setupSync();
+                document.getElementById('status').innerText = "Đối thủ đã vào! Nhấn Bắt đầu ngay.";
+                document.getElementById('start-btn').style.display = 'inline-block';
+            });
+        });
     });
 
-    peer.on('connection', c => {
-        conn = c; isHost = true;
-        setupSync();
-        startGameLoop();
+    // Sửa lỗi PeerJS: Nếu ID mặc định đã có người dùng, ta đóng vai trò khách
+    peer.on('error', (err) => {
+        if(err.type === 'unavailable-id') {
+            const guestPeer = new Peer();
+            guestPeer.on('open', () => {
+                conn = guestPeer.connect(ROOM_ID);
+                isHost = false;
+                setupSync();
+            });
+        }
     });
-
-    function connectToFriend() {
-        const rid = document.getElementById('remote-id').value;
-        conn = peer.connect(rid);
-        isHost = false;
-        setupSync();
-    }
 
     function setupSync() {
-        conn.on('open', () => {
-            document.getElementById('status').innerText = "ĐÃ KẾT NỐI!";
-            document.getElementById('overlay').style.display = 'none';
-            gameActive = true;
-            if(!isHost) startGameLoop();
-        });
         conn.on('data', data => {
             if (data.type === 'control') nextDir2 = data.dir;
             if (data.type === 'sync') {
                 snake1 = data.s1; snake2 = data.s2; food = data.food;
+                draw();
+            }
+            if (data.type === 'start') {
+                gameActive = true;
+                document.getElementById('status').innerText = "CHIẾN!";
+                document.getElementById('start-btn').style.display = 'none';
+                if(!gameInterval) startGameLoop();
             }
             if (data.type === 'over') showGameOver(data.msg);
-            if (data.type === 'reset') resetLogic();
         });
+    }
+
+    function requestStart() {
+        if (isHost) {
+            gameActive = true;
+            conn.send({ type: 'start' });
+            document.getElementById('start-btn').style.display = 'none';
+            document.getElementById('status').innerText = "CHIẾN!";
+            startGameLoop();
+        }
     }
 
     window.addEventListener("keydown", e => {
@@ -89,8 +117,7 @@
         else if (["ArrowDown", "s"].includes(e.key)) d = {x: 0, y: 1};
         else if (["ArrowLeft", "a"].includes(e.key)) d = {x: -1, y: 0};
         else if (["ArrowRight", "d"].includes(e.key)) d = {x: 1, y: 0};
-        if (d.x === 0 && d.y === 0) return;
-
+        
         if (isHost) {
             if (d.x !== -dir1.x || d.y !== -dir1.y) nextDir1 = d;
         } else if (conn) {
@@ -105,23 +132,18 @@
         let h1 = {x: snake1[0].x + dir1.x, y: snake1[0].y + dir1.y};
         let h2 = {x: snake2[0].x + dir2.x, y: snake2[0].y + dir2.y};
 
-        // Kiểm tra đâm tường
-        if(checkWall(h1)) return gameOver("Rắn Xanh Lá đâm tường!");
-        if(checkWall(h2)) return gameOver("Rắn Xanh Dương đâm tường!");
+        // Kiểm tra va chạm
+        if(h1.x<0||h1.x>=tileCount||h1.y<0||h1.y>=tileCount) return gameOver("Rắn Xanh Lá đâm tường!");
+        if(h2.x<0||h2.x>=tileCount||h2.y<0||h2.y>=tileCount) return gameOver("Rắn Xanh Dương đâm tường!");
+        
+        if(snake1.some(b => b.x === h1.x && b.y === h1.y) || snake2.some(b => b.x === h1.x && b.y === h1.y)) return gameOver("Rắn Xanh Lá bị loại!");
+        if(snake2.some(b => b.x === h2.x && b.y === h2.y) || snake1.some(b => b.x === h2.x && b.y === h2.y)) return gameOver("Rắn Xanh Dương bị loại!");
 
-        // Kiểm tra đâm vào thân (mình và đối phương)
-        if(checkCollision(h1, snake1.slice(1)) || checkCollision(h1, snake2)) return gameOver("Rắn Xanh Lá bị loại!");
-        if(checkCollision(h2, snake2.slice(1)) || checkCollision(h2, snake1)) return gameOver("Rắn Xanh Dương bị loại!");
-
-        // Xử lý ăn mồi và dài ra
         processMove(snake1, h1);
         processMove(snake2, h2);
 
-        if (conn && conn.open) conn.send({ type: 'sync', s1: snake1, s2: snake2, food: food });
+        if (conn?.open) conn.send({ type: 'sync', s1: snake1, s2: snake2, food: food });
     }
-
-    function checkWall(h) { return h.x < 0 || h.x >= tileCount || h.y < 0 || h.y >= tileCount; }
-    function checkCollision(h, body) { return body.some(b => b.x === h.x && b.y === h.y); }
 
     function processMove(snake, head) {
         snake.unshift(head);
@@ -136,6 +158,8 @@
         gameActive = false;
         showGameOver(msg);
         if(conn) conn.send({ type: 'over', msg: msg });
+        clearInterval(gameInterval);
+        gameInterval = null;
     }
 
     function showGameOver(msg) {
@@ -143,29 +167,20 @@
         document.getElementById('winner-text').innerText = msg;
     }
 
-    function requestReset() {
-        if (isHost) resetLogic();
-        else if(conn) conn.send({ type: 'reset' });
-    }
-
-    function resetLogic() {
-        snake1 = [{x: 15, y: 10}]; snake2 = [{x: 5, y: 10}];
-        nextDir1 = {x:0,y:0}; nextDir2 = {x:0,y:0};
-        dir1 = {x:0,y:0}; dir2 = {x:0,y:0};
-        document.getElementById('overlay').style.display = 'none';
-        gameActive = true;
-        if(isHost && conn) conn.send({ type: 'reset' });
-    }
-
     function draw() {
         ctx.fillStyle = "black"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "#2ecc71"; snake1.forEach(p => ctx.fillRect(p.x*gridSize, p.y*gridSize, 18, 18));
-        ctx.fillStyle = "#3498db"; snake2.forEach(p => ctx.fillRect(p.x*gridSize, p.y*gridSize, 18, 18));
-        ctx.fillStyle = "#e74c3c"; ctx.fillRect(food.x*gridSize, food.y*gridSize, 18, 18);
+        // Rắn 1 (Xanh lá)
+        ctx.fillStyle = "#2ecc71";
+        snake1.forEach(p => ctx.fillRect(p.x*gridSize, p.y*gridSize, 18, 18));
+        // Rắn 2 (Xanh dương)
+        ctx.fillStyle = "#3498db";
+        snake2.forEach(p => ctx.fillRect(p.x*gridSize, p.y*gridSize, 18, 18));
+        // Mồi
+        ctx.fillStyle = "#e74c3c";
+        ctx.fillRect(food.x*gridSize, food.y*gridSize, 18, 18);
     }
 
     function startGameLoop() {
-        if(gameInterval) clearInterval(gameInterval);
         gameInterval = setInterval(() => { update(); draw(); }, 150);
     }
 </script>
