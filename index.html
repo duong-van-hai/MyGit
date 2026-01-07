@@ -2,187 +2,153 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Sâu Săn Mồi Đối Kháng</title>
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Sửa bài Công nghệ 11 - Cơ khí chế tạo</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; background: #1a1a1a; color: white; margin: 0; padding: 20px; }
-        .header { background: #2d2d2d; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 15px; width: 100%; max-width: 420px; }
-        .status { color: #ffc107; font-weight: bold; margin-bottom: 10px; }
-        canvas { border: 5px solid #333; background: #000; border-radius: 5px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; color: white; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-        .btn-start { background: #27ae60; display: none; }
-        .btn-start:hover { background: #2ecc71; }
-        #overlay { position: absolute; top: 350px; display: none; background: rgba(0,0,0,0.9); padding: 30px; border-radius: 15px; text-align: center; border: 3px solid #2ecc71; z-index: 100; }
+        :root {
+            --sidebar-width: 280px;
+            --primary-color: #0891b2; /* Màu Cyan đậm cho Cơ khí */
+            --bg-body: #f1f5f9;
+            --text-main: #1e293b;
+            --success: #059669;
+            --accent: #f59e0b;
+        }
+
+        body { font-family: 'Inter', 'Segoe UI', sans-serif; background-color: var(--bg-body); color: var(--text-main); margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: var(--sidebar-width); background: #1e293b; color: white; display: flex; flex-direction: column; transition: all 0.3s; }
+        .sidebar-header { padding: 20px; background: #0f172a; text-align: center; }
+        .sidebar-header h3 { margin: 0; font-size: 1.2rem; color: #22d3ee; }
+        .nav-list { flex: 1; overflow-y: auto; padding: 10px; list-style: none; margin: 0; }
+        .nav-item { padding: 12px 15px; margin-bottom: 5px; border-radius: 8px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; font-size: 0.95rem; color: #cbd5e1; }
+        .nav-item:hover { background: #334155; color: white; }
+        .nav-item.active { background: var(--primary-color); color: white; font-weight: bold; }
+        .nav-item i { margin-right: 10px; width: 20px; }
+        .section-title { font-size: 0.75rem; text-transform: uppercase; color: #94a3b8; margin: 20px 0 10px 15px; letter-spacing: 1px; }
+
+        .main-content { flex: 1; display: flex; flex-direction: column; position: relative; background: white; margin: 15px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .top-bar { padding: 15px 30px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .question-container { flex: 1; padding: 40px 60px; overflow-y: auto; }
+        .badge { padding: 4px 12px; border-radius: 9999px; font-size: 0.85rem; font-weight: 600; background: #cffafe; color: var(--primary-color); }
+        h1.question-text { font-size: 2.2rem; line-height: 1.4; margin: 20px 0; color: #0f172a; }
+        .answer-card { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 25px; margin-top: 30px; display: none; animation: slideUp 0.4s ease-out; }
+        .answer-card.visible { display: block; }
+        .ans-header { color: var(--success); font-weight: 800; font-size: 1.5rem; margin-bottom: 10px; display: flex; align-items: center; }
+        .explanation-text { font-size: 1.2rem; color: #475569; border-top: 1px solid #cbd5e1; padding-top: 15px; margin-top: 15px; }
+
+        .controls { padding: 20px 40px; border-top: 1px solid #e2e8f0; display: flex; gap: 15px; justify-content: center; }
+        button { padding: 12px 28px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; font-size: 1rem; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn-secondary { background: #f1f5f9; color: #475569; }
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-accent { background: var(--accent); color: white; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #e2e8f0; padding: 15px; text-align: left; }
+        th { background: #f8fafc; }
+        .true-text { color: var(--success); font-weight: bold; }
+        .false-text { color: #ef4444; font-weight: bold; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>SNAKE 1vs1</h1>
-        <div id="status" class="status">Đang tìm đối thủ...</div>
-        <button id="start-btn" class="btn btn-start" onclick="requestStart()">BẮT ĐẦU CHƠI</button>
+<div class="sidebar">
+    <div class="sidebar-header">
+        <h3><i class="fas fa-cogs"></i> CÔNG NGHỆ 11</h3>
+        <small style="color: #94a3b8">Cơ khí chế tạo - Mã 101</small>
     </div>
+    <ul class="nav-list" id="sidebar-nav"></ul>
+</div>
 
-    <div id="overlay">
-        <h2 id="winner-text"></h2>
-        <button class="btn" style="background:#1a73e8" onclick="location.reload()">CHƠI LẠI</button>
+<div class="main-content">
+    <div class="top-bar">
+        <span class="badge" id="type-badge">PHẦN I: TRẮC NGHIỆM</span>
+        <div class="page-num" id="progress-text">Câu 1 / 19</div>
     </div>
-
-    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <div class="question-container">
+        <h1 class="question-text" id="q-text">Đang tải...</h1>
+        <div id="q-extra"></div>
+        <div class="answer-card" id="answer-card">
+            <div class="ans-header"><i class="fas fa-check-double"></i> ĐÁP ÁN PHÂN TÍCH</div>
+            <div id="ans-val" style="font-size: 1.8rem; font-weight: 700; color: #1e293b;"></div>
+            <div class="explanation-text" id="exp-val"></div>
+        </div>
+    </div>
+    <div class="controls">
+        <button class="btn-secondary" onclick="changeSlide(-1)"><i class="fas fa-chevron-left"></i> Trước</button>
+        <button class="btn-accent" onclick="toggleAnswer()"><i class="fas fa-lightbulb"></i> Đáp án (Space)</button>
+        <button class="btn-primary" onclick="changeSlide(1)">Tiếp theo <i class="fas fa-chevron-right"></i></button>
+    </div>
+</div>
 
 <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-    const gridSize = 20, tileCount = 20;
+    const data = [
+        // PHẦN I: 12 CÂU
+        { t: "TRẮC NGHIỆM", q: "Phương pháp nào sau đây thuộc nhóm “Gia công có phoi”?", a: "B. Tiện", e: "Gia công có phoi là quá trình hớt đi một lớp kim loại thừa (phoi) để tạo hình sản phẩm. Tiện, phay, bào, khoan đều thuộc nhóm này." },
+        { t: "TRẮC NGHIỆM", q: "Ưu điểm của công nghệ chế tạo phôi bằng phương pháp hàn?", a: "A. Tiết kiệm kim loại", e: "Hàn giúp nối các chi tiết rời rạc thành một khối, giảm thiểu hao hụt vật liệu so với đúc hoặc gia công cắt gọt từ phôi lớn." },
+        { t: "TRẮC NGHIỆM", q: "Trong dây chuyền sản xuất ô tô, ai lắp đặt động cơ vào khung xe?", a: "C. Công nhân lắp ráp cơ khí", e: "Đây là công đoạn thực thi trực tiếp trên dây chuyền sản xuất cơ khí." },
+        { t: "TRẮC NGHIỆM", q: "Trên máy tiện vạn năng, chi tiết gắn dao khi tiện là gì?", a: "D. Đài dao", e: "Đài dao dùng để kẹp chặt dao tiện và có thể xoay để thay đổi góc độ cắt." },
+        { t: "TRẮC NGHIỆM", q: "Phương pháp nào sau đây thuộc nhóm gia công không phoi?", a: "A. Đúc", e: "Đúc, rèn, ép là gia công không phoi vì không tạo ra lớp kim loại thừa bị cắt bỏ." },
+        { t: "TRẮC NGHIỆM", q: "Nhiệm vụ của ngành cơ khí chế tạo?", a: "B. Thiết kế và chế tạo máy móc", e: "Cơ khí chế tạo là nền tảng sản xuất ra các công cụ lao động cho tất cả các ngành kinh tế khác." },
+        { t: "TRẮC NGHIỆM", q: "Vật liệu nào có độ bền và độ cứng cao, chịu nhiệt tốt?", a: "B. Hợp kim cứng", e: "Thường dùng để làm lưỡi cắt cho các dụng cụ gia công cắt gọt máy công cụ." },
+        { t: "TRẮC NGHIỆM", q: "Quy trình chế tạo cơ khí gồm các bước chính nào?", a: "D. Đọc bản vẽ -> Chế tạo phôi -> Gia công -> Lắp ráp -> Kiểm tra", e: "Đây là quy trình chuẩn để biến nguyên liệu thành sản phẩm hoàn chỉnh." },
+        { t: "TRẮC NGHIỆM", q: "Tiện có thể gia công được các bề mặt nào?", a: "B. Các bề mặt tròn xoay", e: "Đặc trưng của tiện là phôi quay tròn, tạo ra các mặt trụ, mặt côn hoặc mặt cầu." },
+        { t: "TRẮC NGHIỆM", q: "Dụng cụ dùng để đo kích thước độ dài trong cơ khí?", a: "C. Thước cặp", e: "Thước cặp là dụng cụ đo đo lường phổ biến, độ chính xác cao hơn thước lá." },
+        { t: "TRẮC NGHIỆM", q: "Máy phay thường dùng loại dao nào?", a: "A. Dao phay ngón, dao phay mặt đầu", e: "Dao phay có nhiều lưỡi cắt, chuyển động quay tròn khi gia công." },
+        { t: "TRẮC NGHIỆM", q: "Vật liệu composite là gì?", a: "C. Vật liệu tổ hợp từ hai hay nhiều loại vật liệu khác nhau", e: "Nhằm tạo ra vật liệu mới có tính chất vượt trội hơn các vật liệu thành phần." },
 
-    let snake1 = [{x: 15, y: 10}], snake2 = [{x: 5, y: 10}], food = {x: 10, y: 10};
-    let dir1 = {x: 0, y: 0}, dir2 = {x: 0, y: 0};
-    let nextDir1 = {x: 0, y: 0}, nextDir2 = {x: 0, y: 0};
-    let isHost = false, conn, gameActive = false, gameInterval;
+        // PHẦN II: 4 CÂU ĐÚNG/SAI
+        { t: "ĐÚNG/SAI", q: "Về phương pháp gia công cơ khí:", isTF: true, rows: [["A. Tiện là gia công có phoi", "Đúng"], ["B. Rèn là gia công có phoi", "Sai (Không phoi)"], ["C. Đúc tạo ra sản phẩm có độ chính xác rất cao", "Sai"], ["D. Hàn dùng để nối các chi tiết kim loại", "Đúng"]] },
+        { t: "ĐÚNG/SAI", q: "Về các loại vật liệu cơ khí:", isTF: true, rows: [["A. Thép có hàm lượng Carbon thấp hơn gang", "Đúng"], ["B. Nhôm có tính dẫn điện tốt", "Đúng"], ["C. Nhựa là vật liệu kim loại", "Sai"], ["D. Đồng có khả năng chống ăn mòn tốt", "Đúng"]] },
+        { t: "ĐÚNG/SAI", q: "Nhận định về vật liệu Cao su:", isTF: true, rows: [["A. Cao su dẫn điện tốt", "Sai"], ["B. Có 2 loại: thiên nhiên và tổng hợp", "Đúng"], ["C. Cao su nhân tạo kém hơn hoàn toàn", "Sai"], ["D. Thuộc nhóm phi kim loại, đàn hồi tốt", "Đúng"]] },
+        { t: "ĐÚNG/SAI", q: "Nhận định về vật liệu tại phòng thí nghiệm:", isTF: true, rows: [["A. Cần tính chất cơ, lí, hoá để sử dụng", "Đúng"], ["B. Composite cốt sợi thuỷ tinh cách điện tốt", "Đúng"], ["C. Gốm sứ thuộc nhóm vật liệu mới", "Đúng"], ["D. Thép carbon là vật liệu phi kim", "Sai (Là kim loại)"]] },
 
-    // Tên phòng cố định - Hai máy vào cùng link này sẽ tự thấy nhau
-    const ROOM_ID = "phong-hoc-cong-nghe-v1"; 
+        // PHẦN III: 3 CÂU TỰ LUẬN
+        { t: "TỰ LUẬN", q: "Câu 1: Ứng dụng của vật liệu nano trong cơ khí?", a: "Chế tạo các lớp phủ chống mài mòn, linh kiện siêu nhỏ, vật liệu siêu nhẹ nhưng độ cứng cực cao.", e: "Nano là vật liệu của tương lai với kích thước từ 1-100 nanomet." },
+        { t: "TỰ LUẬN", q: "Câu 2: So sánh ưu điểm của đúc và hàn?", a: "Đúc: Tạo được hình dáng phức tạp, khối lượng lớn. Hàn: Tiết kiệm vật liệu, liên kết bền vững, thiết bị đơn giản hơn.", e: "Học sinh cần nêu được sự khác biệt về bản chất gia công (nóng chảy khuôn >< nối kết)." },
+        { t: "TỰ LUẬN", q: "Câu 3: Vai trò của cơ khí chế tạo trong sản xuất?", a: "Cung cấp máy móc, thiết bị cho các ngành sản xuất, giải phóng sức lao động, tăng năng suất và chất lượng sản phẩm.", e: "Cơ khí chế tạo là 'quả tim' của nền công nghiệp." }
+    ];
 
-    // Khởi tạo kết nối
-    const peer = new Peer(); 
-
-    peer.on('open', (id) => {
-        // Thử kết nối tới phòng mặc định
-        const masterConn = peer.connect(ROOM_ID);
-        masterConn.on('open', () => {
-            conn = masterConn;
-            isHost = false;
-            setupSync();
-            document.getElementById('status').innerText = "Đã thấy Chủ phòng! Chờ lệnh bắt đầu.";
-        });
-
-        masterConn.on('error', () => {
-            // Nếu không có ai, mình làm chủ phòng
-            const peerHost = new Peer(ROOM_ID);
-            peerHost.on('open', () => {
-                document.getElementById('status').innerText = "Bạn là Chủ phòng. Chờ người thứ 2...";
-            });
-            peerHost.on('connection', (c) => {
-                conn = c;
-                isHost = true;
-                setupSync();
-                document.getElementById('status').innerText = "Đối thủ đã vào! Nhấn Bắt đầu ngay.";
-                document.getElementById('start-btn').style.display = 'inline-block';
-            });
-        });
-    });
-
-    // Sửa lỗi PeerJS: Nếu ID mặc định đã có người dùng, ta đóng vai trò khách
-    peer.on('error', (err) => {
-        if(err.type === 'unavailable-id') {
-            const guestPeer = new Peer();
-            guestPeer.on('open', () => {
-                conn = guestPeer.connect(ROOM_ID);
-                isHost = false;
-                setupSync();
-            });
-        }
-    });
-
-    function setupSync() {
-        conn.on('data', data => {
-            if (data.type === 'control') nextDir2 = data.dir;
-            if (data.type === 'sync') {
-                snake1 = data.s1; snake2 = data.s2; food = data.food;
-                draw();
+    let current = 0;
+    function initSidebar() {
+        const nav = document.getElementById('sidebar-nav');
+        let currentSection = "";
+        data.forEach((item, i) => {
+            if(item.t !== currentSection) {
+                currentSection = item.t;
+                nav.innerHTML += `<li class="section-title">${currentSection}</li>`;
             }
-            if (data.type === 'start') {
-                gameActive = true;
-                document.getElementById('status').innerText = "CHIẾN!";
-                document.getElementById('start-btn').style.display = 'none';
-                if(!gameInterval) startGameLoop();
-            }
-            if (data.type === 'over') showGameOver(data.msg);
+            nav.innerHTML += `<li class="nav-item" id="nav-${i}" onclick="goTo(${i})"><i class="fas fa-cog"></i> Câu ${i+1}</li>`;
         });
+        updateUI();
     }
-
-    function requestStart() {
-        if (isHost) {
-            gameActive = true;
-            conn.send({ type: 'start' });
-            document.getElementById('start-btn').style.display = 'none';
-            document.getElementById('status').innerText = "CHIẾN!";
-            startGameLoop();
+    function updateUI() {
+        const item = data[current];
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        document.getElementById(`nav-${current}`).classList.add('active');
+        document.getElementById('type-badge').innerText = item.t;
+        document.getElementById('progress-text').innerText = `Câu ${current + 1} / ${data.length}`;
+        document.getElementById('q-text').innerText = item.q;
+        document.getElementById('answer-card').classList.remove('visible');
+        const extra = document.getElementById('q-extra');
+        extra.innerHTML = "";
+        if(item.isTF) {
+            let table = `<table><tr><th>Nhận định</th><th>Đáp án</th></tr>`;
+            item.rows.forEach(r => table += `<tr><td>${r[0]}</td><td class="${r[1]=='Đúng'?'true-text':'false-text'}">${r[1]}</td></tr>`);
+            extra.innerHTML = table + `</table>`;
         }
+        document.getElementById('ans-val').innerText = item.a || "Xem bảng Đúng/Sai phía trên";
+        document.getElementById('exp-val').innerHTML = `<strong>Phân tích chuyên gia:</strong> ${item.e}`;
     }
-
-    window.addEventListener("keydown", e => {
-        let d = {x: 0, y: 0};
-        if (["ArrowUp", "w"].includes(e.key)) d = {x: 0, y: -1};
-        else if (["ArrowDown", "s"].includes(e.key)) d = {x: 0, y: 1};
-        else if (["ArrowLeft", "a"].includes(e.key)) d = {x: -1, y: 0};
-        else if (["ArrowRight", "d"].includes(e.key)) d = {x: 1, y: 0};
-        
-        if (isHost) {
-            if (d.x !== -dir1.x || d.y !== -dir1.y) nextDir1 = d;
-        } else if (conn) {
-            conn.send({ type: 'control', dir: d });
-        }
+    function goTo(index) { current = index; updateUI(); }
+    function changeSlide(n) { current = (current + n + data.length) % data.length; updateUI(); }
+    function toggleAnswer() { document.getElementById('answer-card').classList.toggle('visible'); }
+    document.addEventListener('keydown', (e) => {
+        if(e.key === "ArrowRight") changeSlide(1);
+        if(e.key === "ArrowLeft") changeSlide(-1);
+        if(e.key === " ") { e.preventDefault(); toggleAnswer(); }
     });
-
-    function update() {
-        if (!isHost || !gameActive) return;
-        dir1 = nextDir1; dir2 = nextDir2;
-
-        let h1 = {x: snake1[0].x + dir1.x, y: snake1[0].y + dir1.y};
-        let h2 = {x: snake2[0].x + dir2.x, y: snake2[0].y + dir2.y};
-
-        // Kiểm tra va chạm
-        if(h1.x<0||h1.x>=tileCount||h1.y<0||h1.y>=tileCount) return gameOver("Rắn Xanh Lá đâm tường!");
-        if(h2.x<0||h2.x>=tileCount||h2.y<0||h2.y>=tileCount) return gameOver("Rắn Xanh Dương đâm tường!");
-        
-        if(snake1.some(b => b.x === h1.x && b.y === h1.y) || snake2.some(b => b.x === h1.x && b.y === h1.y)) return gameOver("Rắn Xanh Lá bị loại!");
-        if(snake2.some(b => b.x === h2.x && b.y === h2.y) || snake1.some(b => b.x === h2.x && b.y === h2.y)) return gameOver("Rắn Xanh Dương bị loại!");
-
-        processMove(snake1, h1);
-        processMove(snake2, h2);
-
-        if (conn?.open) conn.send({ type: 'sync', s1: snake1, s2: snake2, food: food });
-    }
-
-    function processMove(snake, head) {
-        snake.unshift(head);
-        if (head.x === food.x && head.y === food.y) {
-            food = { x: Math.floor(Math.random()*tileCount), y: Math.floor(Math.random()*tileCount) };
-        } else {
-            snake.pop();
-        }
-    }
-
-    function gameOver(msg) {
-        gameActive = false;
-        showGameOver(msg);
-        if(conn) conn.send({ type: 'over', msg: msg });
-        clearInterval(gameInterval);
-        gameInterval = null;
-    }
-
-    function showGameOver(msg) {
-        document.getElementById('overlay').style.display = 'block';
-        document.getElementById('winner-text').innerText = msg;
-    }
-
-    function draw() {
-        ctx.fillStyle = "black"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-        // Rắn 1 (Xanh lá)
-        ctx.fillStyle = "#2ecc71";
-        snake1.forEach(p => ctx.fillRect(p.x*gridSize, p.y*gridSize, 18, 18));
-        // Rắn 2 (Xanh dương)
-        ctx.fillStyle = "#3498db";
-        snake2.forEach(p => ctx.fillRect(p.x*gridSize, p.y*gridSize, 18, 18));
-        // Mồi
-        ctx.fillStyle = "#e74c3c";
-        ctx.fillRect(food.x*gridSize, food.y*gridSize, 18, 18);
-    }
-
-    function startGameLoop() {
-        gameInterval = setInterval(() => { update(); draw(); }, 150);
-    }
+    initSidebar();
 </script>
 </body>
 </html>
