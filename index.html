@@ -3,152 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ thống Sửa bài Công nghệ 11 - Cơ khí chế tạo</title>
+    <title>Hệ thống Sửa bài Công nghệ 11 - Master</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --sidebar-width: 280px;
-            --primary-color: #0891b2; /* Màu Cyan đậm cho Cơ khí */
-            --bg-body: #f1f5f9;
-            --text-main: #1e293b;
-            --success: #059669;
-            --accent: #f59e0b;
+            --sidebar-width: 300px;
+            --primary-color: #0d9488;
+            --bg-body: #f8fafc;
+            --text-main: #0f172a;
+            --success: #16a34a;
+            --accent: #ea580c;
         }
 
-        body { font-family: 'Inter', 'Segoe UI', sans-serif; background-color: var(--bg-body); color: var(--text-main); margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        .sidebar { width: var(--sidebar-width); background: #1e293b; color: white; display: flex; flex-direction: column; transition: all 0.3s; }
-        .sidebar-header { padding: 20px; background: #0f172a; text-align: center; }
-        .sidebar-header h3 { margin: 0; font-size: 1.2rem; color: #22d3ee; }
-        .nav-list { flex: 1; overflow-y: auto; padding: 10px; list-style: none; margin: 0; }
-        .nav-item { padding: 12px 15px; margin-bottom: 5px; border-radius: 8px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; font-size: 0.95rem; color: #cbd5e1; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: var(--sidebar-width); background: #1e293b; color: white; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 25px; background: #0f172a; text-align: center; border-bottom: 1px solid #334155; }
+        .sidebar-header h3 { margin: 0; font-size: 1.3rem; color: #2dd4bf; }
+        .nav-list { flex: 1; overflow-y: auto; padding: 15px; list-style: none; margin: 0; }
+        .nav-item { padding: 14px 18px; margin-bottom: 8px; border-radius: 10px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; font-size: 1rem; color: #94a3b8; }
         .nav-item:hover { background: #334155; color: white; }
-        .nav-item.active { background: var(--primary-color); color: white; font-weight: bold; }
-        .nav-item i { margin-right: 10px; width: 20px; }
-        .section-title { font-size: 0.75rem; text-transform: uppercase; color: #94a3b8; margin: 20px 0 10px 15px; letter-spacing: 1px; }
+        .nav-item.active { background: var(--primary-color); color: white; font-weight: bold; box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3); }
+        .section-title { font-size: 0.8rem; text-transform: uppercase; color: #64748b; margin: 25px 0 10px 15px; letter-spacing: 1.5px; }
 
-        .main-content { flex: 1; display: flex; flex-direction: column; position: relative; background: white; margin: 15px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
-        .top-bar { padding: 15px 30px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .main-content { flex: 1; display: flex; flex-direction: column; margin: 20px; background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .top-bar { padding: 20px 40px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
+        .badge { padding: 6px 16px; border-radius: 50px; font-size: 0.9rem; font-weight: 700; background: #f0fdfa; color: var(--primary-color); border: 1px solid #ccfbf1; }
+        
         .question-container { flex: 1; padding: 40px 60px; overflow-y: auto; }
-        .badge { padding: 4px 12px; border-radius: 9999px; font-size: 0.85rem; font-weight: 600; background: #cffafe; color: var(--primary-color); }
-        h1.question-text { font-size: 2.2rem; line-height: 1.4; margin: 20px 0; color: #0f172a; }
-        .answer-card { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 25px; margin-top: 30px; display: none; animation: slideUp 0.4s ease-out; }
-        .answer-card.visible { display: block; }
-        .ans-header { color: var(--success); font-weight: 800; font-size: 1.5rem; margin-bottom: 10px; display: flex; align-items: center; }
-        .explanation-text { font-size: 1.2rem; color: #475569; border-top: 1px solid #cbd5e1; padding-top: 15px; margin-top: 15px; }
+        h1.question-text { font-size: 2.5rem; line-height: 1.3; margin: 0 0 30px 0; color: #1e293b; }
+        
+        .answer-card { background: #fdfdfd; border: 2px solid #e2e8f0; border-radius: 16px; padding: 30px; margin-top: 20px; display: none; border-left: 8px solid var(--success); }
+        .answer-card.visible { display: block; animation: fadeIn 0.4s ease; }
+        .ans-header { color: var(--success); font-weight: 800; font-size: 1.6rem; margin-bottom: 15px; }
+        .explanation-text { font-size: 1.3rem; line-height: 1.6; color: #475569; border-top: 1px solid #f1f5f9; padding-top: 20px; }
 
-        .controls { padding: 20px 40px; border-top: 1px solid #e2e8f0; display: flex; gap: 15px; justify-content: center; }
-        button { padding: 12px 28px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; font-size: 1rem; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
-        .btn-secondary { background: #f1f5f9; color: #475569; }
+        .controls { padding: 30px 60px; border-top: 1px solid #f1f5f9; display: flex; gap: 20px; justify-content: center; }
+        button { padding: 16px 35px; border-radius: 12px; border: none; cursor: pointer; font-weight: 700; font-size: 1.1rem; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
+        .btn-prev { background: #f1f5f9; color: #64748b; }
         .btn-primary { background: var(--primary-color); color: white; }
         .btn-accent { background: var(--accent); color: white; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #e2e8f0; padding: 15px; text-align: left; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 1.2rem; }
+        th, td { border: 2px solid #e2e8f0; padding: 18px; text-align: left; }
         th { background: #f8fafc; }
-        .true-text { color: var(--success); font-weight: bold; }
-        .false-text { color: #ef4444; font-weight: bold; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .st-true { color: var(--success); font-weight: bold; }
+        .st-false { color: #ef4444; font-weight: bold; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
     <div class="sidebar-header">
-        <h3><i class="fas fa-cogs"></i> CÔNG NGHỆ 11</h3>
-        <small style="color: #94a3b8">Cơ khí chế tạo - Mã 101</small>
+        <h3><i class="fas fa-tools"></i> CÔNG NGHỆ 11</h3>
+        <small style="color: #64748b">Hướng dẫn chấm - Mã đề 101</small>
     </div>
     <ul class="nav-list" id="sidebar-nav"></ul>
 </div>
 
 <div class="main-content">
     <div class="top-bar">
-        <span class="badge" id="type-badge">PHẦN I: TRẮC NGHIỆM</span>
-        <div class="page-num" id="progress-text">Câu 1 / 19</div>
+        <span class="badge" id="type-badge">PHẦN I</span>
+        <div id="page-info" style="font-weight: 600; color: #64748b;">Câu 1 / 19</div>
     </div>
     <div class="question-container">
-        <h1 class="question-text" id="q-text">Đang tải...</h1>
+        <h1 class="question-text" id="q-text">Đang tải dữ liệu đáp án...</h1>
         <div id="q-extra"></div>
         <div class="answer-card" id="answer-card">
-            <div class="ans-header"><i class="fas fa-check-double"></i> ĐÁP ÁN PHÂN TÍCH</div>
-            <div id="ans-val" style="font-size: 1.8rem; font-weight: 700; color: #1e293b;"></div>
+            <div class="ans-header"><i class="fas fa-check-circle"></i> NỘI DUNG ĐÁP ÁN CHI TIẾT</div>
+            <div id="ans-val" style="font-size: 2rem; font-weight: 800; color: #0f172a; margin-bottom: 15px;"></div>
             <div class="explanation-text" id="exp-val"></div>
         </div>
     </div>
     <div class="controls">
-        <button class="btn-secondary" onclick="changeSlide(-1)"><i class="fas fa-chevron-left"></i> Trước</button>
-        <button class="btn-accent" onclick="toggleAnswer()"><i class="fas fa-lightbulb"></i> Đáp án (Space)</button>
-        <button class="btn-primary" onclick="changeSlide(1)">Tiếp theo <i class="fas fa-chevron-right"></i></button>
+        <button class="btn-prev" onclick="changeSlide(-1)"><i class="fas fa-arrow-left"></i> TRƯỚC</button>
+        <button class="btn-accent" onclick="toggleAnswer()"><i class="fas fa-key"></i> ĐÁP ÁN (Space)</button>
+        <button class="btn-primary" onclick="changeSlide(1)">TIẾP THEO <i class="fas fa-arrow-right"></i></button>
     </div>
 </div>
 
 <script>
     const data = [
-        // PHẦN I: 12 CÂU
-        { t: "TRẮC NGHIỆM", q: "Phương pháp nào sau đây thuộc nhóm “Gia công có phoi”?", a: "B. Tiện", e: "Gia công có phoi là quá trình hớt đi một lớp kim loại thừa (phoi) để tạo hình sản phẩm. Tiện, phay, bào, khoan đều thuộc nhóm này." },
-        { t: "TRẮC NGHIỆM", q: "Ưu điểm của công nghệ chế tạo phôi bằng phương pháp hàn?", a: "A. Tiết kiệm kim loại", e: "Hàn giúp nối các chi tiết rời rạc thành một khối, giảm thiểu hao hụt vật liệu so với đúc hoặc gia công cắt gọt từ phôi lớn." },
-        { t: "TRẮC NGHIỆM", q: "Trong dây chuyền sản xuất ô tô, ai lắp đặt động cơ vào khung xe?", a: "C. Công nhân lắp ráp cơ khí", e: "Đây là công đoạn thực thi trực tiếp trên dây chuyền sản xuất cơ khí." },
-        { t: "TRẮC NGHIỆM", q: "Trên máy tiện vạn năng, chi tiết gắn dao khi tiện là gì?", a: "D. Đài dao", e: "Đài dao dùng để kẹp chặt dao tiện và có thể xoay để thay đổi góc độ cắt." },
-        { t: "TRẮC NGHIỆM", q: "Phương pháp nào sau đây thuộc nhóm gia công không phoi?", a: "A. Đúc", e: "Đúc, rèn, ép là gia công không phoi vì không tạo ra lớp kim loại thừa bị cắt bỏ." },
-        { t: "TRẮC NGHIỆM", q: "Nhiệm vụ của ngành cơ khí chế tạo?", a: "B. Thiết kế và chế tạo máy móc", e: "Cơ khí chế tạo là nền tảng sản xuất ra các công cụ lao động cho tất cả các ngành kinh tế khác." },
-        { t: "TRẮC NGHIỆM", q: "Vật liệu nào có độ bền và độ cứng cao, chịu nhiệt tốt?", a: "B. Hợp kim cứng", e: "Thường dùng để làm lưỡi cắt cho các dụng cụ gia công cắt gọt máy công cụ." },
-        { t: "TRẮC NGHIỆM", q: "Quy trình chế tạo cơ khí gồm các bước chính nào?", a: "D. Đọc bản vẽ -> Chế tạo phôi -> Gia công -> Lắp ráp -> Kiểm tra", e: "Đây là quy trình chuẩn để biến nguyên liệu thành sản phẩm hoàn chỉnh." },
-        { t: "TRẮC NGHIỆM", q: "Tiện có thể gia công được các bề mặt nào?", a: "B. Các bề mặt tròn xoay", e: "Đặc trưng của tiện là phôi quay tròn, tạo ra các mặt trụ, mặt côn hoặc mặt cầu." },
-        { t: "TRẮC NGHIỆM", q: "Dụng cụ dùng để đo kích thước độ dài trong cơ khí?", a: "C. Thước cặp", e: "Thước cặp là dụng cụ đo đo lường phổ biến, độ chính xác cao hơn thước lá." },
-        { t: "TRẮC NGHIỆM", q: "Máy phay thường dùng loại dao nào?", a: "A. Dao phay ngón, dao phay mặt đầu", e: "Dao phay có nhiều lưỡi cắt, chuyển động quay tròn khi gia công." },
-        { t: "TRẮC NGHIỆM", q: "Vật liệu composite là gì?", a: "C. Vật liệu tổ hợp từ hai hay nhiều loại vật liệu khác nhau", e: "Nhằm tạo ra vật liệu mới có tính chất vượt trội hơn các vật liệu thành phần." },
+        // PHẦN I: TRẮC NGHIỆM (Dựa theo Đề 001 trong file HDC)
+        { t: "TRẮC NGHIỆM", q: "Câu 1. Phương pháp thuộc nhóm “Gia công có phoi”?", a: "B. Tiện", e: "Gia công có phoi là quá trình hớt đi lớp kim loại thừa trên phôi để tạo hình sản phẩm." },
+        { t: "TRẮC NGHIỆM", q: "Câu 2. Ưu điểm của chế tạo phôi bằng phương pháp hàn?", a: "A. Tiết kiệm kim loại", e: "Hàn giúp liên kết các chi tiết, giảm thiểu lượng kim loại thừa so với đúc hay gia công cắt gọt." },
+        { t: "TRẮC NGHIỆM", q: "Câu 3. Ai trực tiếp lắp động cơ vào khung xe ô tô?", a: "C. Công nhân lắp ráp cơ khí", e: "Đây là nhân lực trực tiếp thực hiện công đoạn lắp ráp trong dây chuyền sản xuất." },
+        { t: "TRẮC NGHIỆM", q: "Câu 4. Trên máy tiện vạn năng, chi tiết gắn dao tiện là?", a: "D. Đài dao", e: "Đài dao dùng để kẹp chặt dao và thực hiện chuyển động tịnh tiến khi cắt gọt." },
+        { t: "TRẮC NGHIỆM", q: "Câu 5. Phương pháp thuộc nhóm gia công không phoi?", a: "C. Đúc", e: "Gia công không phoi bao gồm Đúc, Rèn, Ép... kim loại nóng chảy hoặc biến dạng dẻo mà không tạo phoi." },
+        { t: "TRẮC NGHIỆM", q: "Câu 6. Nhiệm vụ của ngành cơ khí chế tạo?", a: "B. Thiết kế và chế tạo máy móc", e: "Là ngành sản xuất ra tư liệu sản xuất (máy móc, thiết bị) cho toàn bộ nền kinh tế." },
+        { t: "TRẮC NGHIỆM", q: "Câu 7. Vật liệu có độ bền, độ cứng cao, chịu nhiệt tốt?", a: "D. Hợp kim cứng", e: "Thường dùng làm lưỡi cắt dao tiện, dao phay để cắt các vật liệu cứng ở tốc độ cao." },
+        { t: "TRẮC NGHIỆM", q: "Câu 8. Quy trình chế tạo cơ khí gồm các bước nào?", a: "A. Đọc bản vẽ -> Chế tạo phôi -> Gia công -> Lắp ráp -> Kiểm tra", e: "Đây là quy trình khép kín từ ý tưởng bản vẽ đến sản phẩm hoàn thiện." },
+        { t: "TRẮC NGHIỆM", q: "Câu 9. Tiện gia công được các bề mặt nào?", a: "B. Các bề mặt tròn xoay", e: "Phôi quay tròn kết hợp dao chuyển động ngang/dọc tạo ra mặt trụ, mặt côn, mặt cầu." },
+        { t: "TRẮC NGHIỆM", q: "Câu 10. Dụng cụ đo kích thước độ dài phổ biến?", a: "B. Thước cặp", e: "Thước cặp dùng để đo kích thước ngoài, kích thước trong và độ sâu với độ chính xác cao." },
+        { t: "TRẮC NGHIỆM", q: "Câu 11. Máy phay thường dùng loại dao nào?", a: "D. Dao phay ngón, dao phay mặt đầu", e: "Dao phay là dụng cụ cắt có nhiều lưỡi, chuyển động quay tròn là chuyển động chính." },
+        { t: "TRẮC NGHIỆM", q: "Câu 12. Vật liệu composite là gì?", a: "C. Vật liệu tổ hợp từ hai hay nhiều vật liệu khác nhau", e: "Kết hợp các ưu điểm của vật liệu thành phần để tạo ra tính chất vật lý vượt trội." },
 
-        // PHẦN II: 4 CÂU ĐÚNG/SAI
-        { t: "ĐÚNG/SAI", q: "Về phương pháp gia công cơ khí:", isTF: true, rows: [["A. Tiện là gia công có phoi", "Đúng"], ["B. Rèn là gia công có phoi", "Sai (Không phoi)"], ["C. Đúc tạo ra sản phẩm có độ chính xác rất cao", "Sai"], ["D. Hàn dùng để nối các chi tiết kim loại", "Đúng"]] },
-        { t: "ĐÚNG/SAI", q: "Về các loại vật liệu cơ khí:", isTF: true, rows: [["A. Thép có hàm lượng Carbon thấp hơn gang", "Đúng"], ["B. Nhôm có tính dẫn điện tốt", "Đúng"], ["C. Nhựa là vật liệu kim loại", "Sai"], ["D. Đồng có khả năng chống ăn mòn tốt", "Đúng"]] },
-        { t: "ĐÚNG/SAI", q: "Nhận định về vật liệu Cao su:", isTF: true, rows: [["A. Cao su dẫn điện tốt", "Sai"], ["B. Có 2 loại: thiên nhiên và tổng hợp", "Đúng"], ["C. Cao su nhân tạo kém hơn hoàn toàn", "Sai"], ["D. Thuộc nhóm phi kim loại, đàn hồi tốt", "Đúng"]] },
-        { t: "ĐÚNG/SAI", q: "Nhận định về vật liệu tại phòng thí nghiệm:", isTF: true, rows: [["A. Cần tính chất cơ, lí, hoá để sử dụng", "Đúng"], ["B. Composite cốt sợi thuỷ tinh cách điện tốt", "Đúng"], ["C. Gốm sứ thuộc nhóm vật liệu mới", "Đúng"], ["D. Thép carbon là vật liệu phi kim", "Sai (Là kim loại)"]] },
+        // PHẦN II: ĐÚNG/SAI
+        { t: "ĐÚNG/SAI", q: "Câu 1. Về phương pháp gia công cơ khí:", isTF: true, rows: [["A. Tiện là gia công có phoi", "Đúng"], ["B. Rèn là gia công có phoi", "Sai"], ["C. Đúc tạo ra sản phẩm chính xác rất cao", "Sai"], ["D. Hàn dùng để nối các chi tiết kim loại", "Đúng"]] },
+        { t: "ĐÚNG/SAI", q: "Câu 2. Về các loại vật liệu cơ khí:", isTF: true, rows: [["A. Thép có hàm lượng C thấp hơn gang", "Đúng"], ["B. Nhôm có tính dẫn điện tốt", "Đúng"], ["C. Nhựa là vật liệu kim loại", "Sai"], ["D. Đồng có khả năng chống ăn mòn tốt", "Đúng"]] },
+        { t: "ĐÚNG/SAI", q: "Câu 3. Về vật liệu Cao su:", isTF: true, rows: [["A. Cao su dẫn điện tốt", "Sai"], ["B. Có 2 loại: thiên nhiên và tổng hợp", "Đúng"], ["C. Cao su nhân tạo kém hoàn toàn thiên nhiên", "Sai"], ["D. Là vật liệu phi kim, đàn hồi tốt", "Đúng"]] },
+        { t: "ĐÚNG/SAI", q: "Câu 4. Về mẫu vật thí nghiệm:", isTF: true, rows: [["A. Phải có tính chất cơ, lí, hoá", "Đúng"], ["B. Composite sợi thuỷ tinh cách điện tốt", "Đúng"], ["C. Gốm sứ thuộc nhóm vật liệu mới", "Đúng"], ["D. Thép carbon là vật liệu phi kim", "Sai"]] },
 
-        // PHẦN III: 3 CÂU TỰ LUẬN
-        { t: "TỰ LUẬN", q: "Câu 1: Ứng dụng của vật liệu nano trong cơ khí?", a: "Chế tạo các lớp phủ chống mài mòn, linh kiện siêu nhỏ, vật liệu siêu nhẹ nhưng độ cứng cực cao.", e: "Nano là vật liệu của tương lai với kích thước từ 1-100 nanomet." },
-        { t: "TỰ LUẬN", q: "Câu 2: So sánh ưu điểm của đúc và hàn?", a: "Đúc: Tạo được hình dáng phức tạp, khối lượng lớn. Hàn: Tiết kiệm vật liệu, liên kết bền vững, thiết bị đơn giản hơn.", e: "Học sinh cần nêu được sự khác biệt về bản chất gia công (nóng chảy khuôn >< nối kết)." },
-        { t: "TỰ LUẬN", q: "Câu 3: Vai trò của cơ khí chế tạo trong sản xuất?", a: "Cung cấp máy móc, thiết bị cho các ngành sản xuất, giải phóng sức lao động, tăng năng suất và chất lượng sản phẩm.", e: "Cơ khí chế tạo là 'quả tim' của nền công nghiệp." }
+        // PHẦN III: TỰ LUẬN (Cập nhật chuẩn theo file HDC)
+        { t: "TỰ LUẬN", q: "Câu 1. Ứng dụng của vật liệu nano trong cơ khí?", a: "Hướng dẫn chấm chi tiết:", e: "• Chế tạo các chi tiết máy có độ bền cao, chống mài mòn (0,25đ).<br>• Chế tạo các ổ trượt siêu nhỏ cho các trục chống mài mòn (0,25đ).<br>• Dùng làm các lớp phủ lên chi tiết máy để chống ăn mòn (0,25đ).<br>• Tăng độ bền và độ cứng cho các linh kiện (0,25đ)." },
+        { t: "TỰ LUẬN", q: "Câu 2. Lập quy trình gia công chi tiết bậc trục (10 cái)?", a: "Quy trình gia công chuẩn:", e: "<strong>Bước 1:</strong> Tìm hiểu chi tiết (Thép, 3 bậc Ø, đơn chiếc).<br><strong>Bước 2:</strong> Chọn phôi (Thép thanh) & phương pháp chế tạo phôi.<br><strong>Bước 3:</strong> Trình tự các bước:<br>1. Tiện khỏa mặt đầu.<br>2. Tiện trụ Ø20 dài 10mm.<br>3. Tiện rãnh trụ Ø18 dài 10mm.<br>4. Vát mép.<br>5. Đảo đầu và tiện khỏa mặt đầu còn lại.<br>6. Tiện trụ Ø20 dài 10mm còn lại.<br>7. Vát mép cuối." },
+        { t: "TỰ LUẬN", q: "Câu 3. Giai đoạn xử lý cơ tính và bảo vệ bề mặt?", a: "Phân tích:", e: "Đây là bước cuối cùng nhằm tăng độ cứng bề mặt, chống gỉ sét và tăng tính thẩm mỹ cho sản phẩm cơ khí sau khi gia công cắt gọt." }
     ];
 
     let current = 0;
-    function initSidebar() {
+    function init() {
         const nav = document.getElementById('sidebar-nav');
-        let currentSection = "";
+        let currentS = "";
         data.forEach((item, i) => {
-            if(item.t !== currentSection) {
-                currentSection = item.t;
-                nav.innerHTML += `<li class="section-title">${currentSection}</li>`;
-            }
-            nav.innerHTML += `<li class="nav-item" id="nav-${i}" onclick="goTo(${i})"><i class="fas fa-cog"></i> Câu ${i+1}</li>`;
+            if(item.t !== currentS) { currentS = item.t; nav.innerHTML += `<li class="section-title">${currentS}</li>`; }
+            nav.innerHTML += `<li class="nav-item" id="nav-${i}" onclick="goTo(${i})"><i class="fas fa-edit"></i> Câu ${i+1}</li>`;
         });
-        updateUI();
+        update();
     }
-    function updateUI() {
+    function update() {
         const item = data[current];
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
         document.getElementById(`nav-${current}`).classList.add('active');
         document.getElementById('type-badge').innerText = item.t;
-        document.getElementById('progress-text').innerText = `Câu ${current + 1} / ${data.length}`;
+        document.getElementById('page-info').innerText = `Câu ${current + 1} / ${data.length}`;
         document.getElementById('q-text').innerText = item.q;
         document.getElementById('answer-card').classList.remove('visible');
         const extra = document.getElementById('q-extra');
         extra.innerHTML = "";
         if(item.isTF) {
             let table = `<table><tr><th>Nhận định</th><th>Đáp án</th></tr>`;
-            item.rows.forEach(r => table += `<tr><td>${r[0]}</td><td class="${r[1]=='Đúng'?'true-text':'false-text'}">${r[1]}</td></tr>`);
+            item.rows.forEach(r => table += `<tr><td>${r[0]}</td><td class="st-${r[1]=='Đúng'?'true':'false'}">${r[1]}</td></tr>`);
             extra.innerHTML = table + `</table>`;
         }
-        document.getElementById('ans-val').innerText = item.a || "Xem bảng Đúng/Sai phía trên";
-        document.getElementById('exp-val').innerHTML = `<strong>Phân tích chuyên gia:</strong> ${item.e}`;
+        document.getElementById('ans-val').innerText = item.a || "";
+        document.getElementById('exp-val').innerHTML = item.e;
     }
-    function goTo(index) { current = index; updateUI(); }
-    function changeSlide(n) { current = (current + n + data.length) % data.length; updateUI(); }
+    function goTo(i) { current = i; update(); }
+    function changeSlide(n) { current = (current + n + data.length) % data.length; update(); }
     function toggleAnswer() { document.getElementById('answer-card').classList.toggle('visible'); }
     document.addEventListener('keydown', (e) => {
         if(e.key === "ArrowRight") changeSlide(1);
         if(e.key === "ArrowLeft") changeSlide(-1);
         if(e.key === " ") { e.preventDefault(); toggleAnswer(); }
     });
-    initSidebar();
+    init();
 </script>
 </body>
 </html>
