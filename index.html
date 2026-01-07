@@ -30,7 +30,7 @@
         .badge { padding: 6px 16px; border-radius: 50px; font-size: 0.9rem; font-weight: 700; background: #f0fdfa; color: var(--primary-color); border: 1px solid #ccfbf1; }
         
         .question-container { flex: 1; padding: 40px 60px; overflow-y: auto; }
-        h1.question-text { font-size: 2.5rem; line-height: 1.3; margin: 0 0 30px 0; color: #1e293b; }
+        h1.question-text { font-size: 2.4rem; line-height: 1.3; margin: 0 0 30px 0; color: #1e293b; }
         
         .answer-card { background: #fdfdfd; border: 2px solid #e2e8f0; border-radius: 16px; padding: 30px; margin-top: 20px; display: none; border-left: 8px solid var(--success); }
         .answer-card.visible { display: block; animation: fadeIn 0.4s ease; }
@@ -68,11 +68,11 @@
         <div id="page-info" style="font-weight: 600; color: #64748b;">Câu 1 / 19</div>
     </div>
     <div class="question-container">
-        <h1 class="question-text" id="q-text">Đang tải dữ liệu đáp án...</h1>
+        <h1 class="question-text" id="q-text">Đang tải dữ liệu...</h1>
         <div id="q-extra"></div>
         <div class="answer-card" id="answer-card">
-            <div class="ans-header"><i class="fas fa-check-circle"></i> NỘI DUNG ĐÁP ÁN CHI TIẾT</div>
-            <div id="ans-val" style="font-size: 2rem; font-weight: 800; color: #0f172a; margin-bottom: 15px;"></div>
+            <div class="ans-header"><i class="fas fa-check-circle"></i> ĐÁP ÁN VÀ HƯỚNG DẪN CHẤM</div>
+            <div id="ans-val" style="font-size: 1.8rem; font-weight: 800; color: #0f172a; margin-bottom: 15px;"></div>
             <div class="explanation-text" id="exp-val"></div>
         </div>
     </div>
@@ -85,30 +85,35 @@
 
 <script>
     const data = [
-        // PHẦN I: TRẮC NGHIỆM (Dựa theo Đề 001 trong file HDC)
-        { t: "TRẮC NGHIỆM", q: "Câu 1. Phương pháp thuộc nhóm “Gia công có phoi”?", a: "B. Tiện", e: "Gia công có phoi là quá trình hớt đi lớp kim loại thừa trên phôi để tạo hình sản phẩm." },
-        { t: "TRẮC NGHIỆM", q: "Câu 2. Ưu điểm của chế tạo phôi bằng phương pháp hàn?", a: "A. Tiết kiệm kim loại", e: "Hàn giúp liên kết các chi tiết, giảm thiểu lượng kim loại thừa so với đúc hay gia công cắt gọt." },
-        { t: "TRẮC NGHIỆM", q: "Câu 3. Ai trực tiếp lắp động cơ vào khung xe ô tô?", a: "C. Công nhân lắp ráp cơ khí", e: "Đây là nhân lực trực tiếp thực hiện công đoạn lắp ráp trong dây chuyền sản xuất." },
-        { t: "TRẮC NGHIỆM", q: "Câu 4. Trên máy tiện vạn năng, chi tiết gắn dao tiện là?", a: "D. Đài dao", e: "Đài dao dùng để kẹp chặt dao và thực hiện chuyển động tịnh tiến khi cắt gọt." },
-        { t: "TRẮC NGHIỆM", q: "Câu 5. Phương pháp thuộc nhóm gia công không phoi?", a: "C. Đúc", e: "Gia công không phoi bao gồm Đúc, Rèn, Ép... kim loại nóng chảy hoặc biến dạng dẻo mà không tạo phoi." },
-        { t: "TRẮC NGHIỆM", q: "Câu 6. Nhiệm vụ của ngành cơ khí chế tạo?", a: "B. Thiết kế và chế tạo máy móc", e: "Là ngành sản xuất ra tư liệu sản xuất (máy móc, thiết bị) cho toàn bộ nền kinh tế." },
-        { t: "TRẮC NGHIỆM", q: "Câu 7. Vật liệu có độ bền, độ cứng cao, chịu nhiệt tốt?", a: "D. Hợp kim cứng", e: "Thường dùng làm lưỡi cắt dao tiện, dao phay để cắt các vật liệu cứng ở tốc độ cao." },
-        { t: "TRẮC NGHIỆM", q: "Câu 8. Quy trình chế tạo cơ khí gồm các bước nào?", a: "A. Đọc bản vẽ -> Chế tạo phôi -> Gia công -> Lắp ráp -> Kiểm tra", e: "Đây là quy trình khép kín từ ý tưởng bản vẽ đến sản phẩm hoàn thiện." },
-        { t: "TRẮC NGHIỆM", q: "Câu 9. Tiện gia công được các bề mặt nào?", a: "B. Các bề mặt tròn xoay", e: "Phôi quay tròn kết hợp dao chuyển động ngang/dọc tạo ra mặt trụ, mặt côn, mặt cầu." },
-        { t: "TRẮC NGHIỆM", q: "Câu 10. Dụng cụ đo kích thước độ dài phổ biến?", a: "B. Thước cặp", e: "Thước cặp dùng để đo kích thước ngoài, kích thước trong và độ sâu với độ chính xác cao." },
-        { t: "TRẮC NGHIỆM", q: "Câu 11. Máy phay thường dùng loại dao nào?", a: "D. Dao phay ngón, dao phay mặt đầu", e: "Dao phay là dụng cụ cắt có nhiều lưỡi, chuyển động quay tròn là chuyển động chính." },
-        { t: "TRẮC NGHIỆM", q: "Câu 12. Vật liệu composite là gì?", a: "C. Vật liệu tổ hợp từ hai hay nhiều vật liệu khác nhau", e: "Kết hợp các ưu điểm của vật liệu thành phần để tạo ra tính chất vật lý vượt trội." },
+        // PHẦN I: 12 CÂU TRẮC NGHIỆM
+        { t: "TRẮC NGHIỆM", q: "Câu 1. Phương pháp nào sau đây thuộc nhóm “Gia công có phoi”?", a: "B. Tiện", e: "Gia công có phoi là quá trình hớt đi lớp kim loại thừa trên phôi dưới dạng phoi để tạo ra chi tiết có hình dạng, kích thước theo yêu cầu." },
+        { t: "TRẮC NGHIỆM", q: "Câu 2. Ưu điểm của công nghệ chế tạo phôi bằng phương pháp hàn?", a: "A. Tiết kiệm kim loại", e: "Hàn cho phép nối các chi tiết thành kết cấu phức tạp, giúp giảm khối lượng vật liệu so với đúc hay gia công cắt gọt." },
+        { t: "TRẮC NGHIỆM", q: "Câu 3. Trong một dây chuyền sản xuất ô tô, ai trực tiếp lắp đặt động cơ vào khung xe?", a: "C. Công nhân lắp ráp cơ khí", e: "Đây là vị trí nhân lực trực tiếp tham gia vào công đoạn lắp ráp hoàn thiện sản phẩm." },
+        { t: "TRẮC NGHIỆM", q: "Câu 4. Trên máy tiện vạn năng, chi tiết gắn dao khi tiện là?", a: "D. Đài dao", e: "Đài dao dùng để kẹp chặt dao tiện và thực hiện các chuyển động tịnh tiến dọc hoặc ngang." },
+        { t: "TRẮC NGHIỆM", q: "Câu 5. Phương pháp nào sau đây thuộc nhóm gia công không phoi?", a: "C. Đúc", e: "Gia công không phoi bao gồm đúc, rèn, ép... kim loại được tạo hình nhờ trạng thái nóng chảy hoặc biến dạng dẻo." },
+        { t: "TRẮC NGHIỆM", q: "Câu 6. Nhiệm vụ của ngành cơ khí chế tạo là?", a: "B. Thiết kế và chế tạo máy móc", e: "Ngành này tạo ra các máy móc, thiết bị phục vụ cho tất cả các ngành nghề khác trong xã hội." },
+        { t: "TRẮC NGHIỆM", q: "Câu 7. Loại vật liệu nào có độ bền, độ cứng cao và khả năng chịu nhiệt tốt?", a: "D. Hợp kim cứng", e: "Được dùng chủ yếu để chế tạo lưỡi cắt của dao cắt gọt kim loại ở tốc độ cao." },
+        { t: "TRẮC NGHIỆM", q: "Câu 8. Quy trình chế tạo cơ khí bao gồm các bước chính nào?", a: "A. Đọc bản vẽ -> Chế tạo phôi -> Gia công -> Lắp ráp -> Kiểm tra", e: "Đây là trình tự kỹ thuật chuẩn để sản xuất ra một chi tiết hoặc máy móc cơ khí." },
+        { t: "TRẮC NGHIỆM", q: "Câu 9. Tiện có thể gia công được các loại bề mặt nào?", a: "B. Các bề mặt tròn xoay", e: "Bao gồm mặt trụ ngoài, trụ trong, mặt côn, mặt đầu và ren." },
+        { t: "TRẮC NGHIỆM", q: "Câu 10. Dụng cụ dùng để đo kích thước độ dài phổ biến nhất trong cơ khí?", a: "B. Thước cặp", e: "Thước cặp có độ chính xác cao, đo được cả kích thước ngoài, trong và độ sâu." },
+        { t: "TRẮC NGHIỆM", q: "Câu 11. Máy phay thường sử dụng loại dao nào?", a: "D. Dao phay ngón, dao phay mặt đầu", e: "Dao phay có nhiều lưỡi cắt, chuyển động quay tròn là chuyển động chính để cắt vật liệu." },
+        { t: "TRẮC NGHIỆM", q: "Câu 12. Vật liệu composite là gì?", a: "C. Vật liệu tổ hợp từ hai hay nhiều vật liệu khác nhau", e: "Nhằm tạo ra vật liệu mới có tính chất tổng hợp ưu việt hơn các vật liệu thành phần." },
 
-        // PHẦN II: ĐÚNG/SAI
+        // PHẦN II: 4 CÂU ĐÚNG/SAI
         { t: "ĐÚNG/SAI", q: "Câu 1. Về phương pháp gia công cơ khí:", isTF: true, rows: [["A. Tiện là gia công có phoi", "Đúng"], ["B. Rèn là gia công có phoi", "Sai"], ["C. Đúc tạo ra sản phẩm chính xác rất cao", "Sai"], ["D. Hàn dùng để nối các chi tiết kim loại", "Đúng"]] },
-        { t: "ĐÚNG/SAI", q: "Câu 2. Về các loại vật liệu cơ khí:", isTF: true, rows: [["A. Thép có hàm lượng C thấp hơn gang", "Đúng"], ["B. Nhôm có tính dẫn điện tốt", "Đúng"], ["C. Nhựa là vật liệu kim loại", "Sai"], ["D. Đồng có khả năng chống ăn mòn tốt", "Đúng"]] },
+        { t: "ĐÚNG/SAI", q: "Câu 2. Về các loại vật liệu cơ khí:", isTF: true, rows: [["A. Thép có hàm lượng C thấp hơn gang", "Đúng"], ["B. Nhôm có tính dẫn điện tốt", "Đúng"], ["C. Nhựa là vật liệu kim loại", "Sai"], ["D. Đồng chống ăn mòn tốt", "Đúng"]] },
         { t: "ĐÚNG/SAI", q: "Câu 3. Về vật liệu Cao su:", isTF: true, rows: [["A. Cao su dẫn điện tốt", "Sai"], ["B. Có 2 loại: thiên nhiên và tổng hợp", "Đúng"], ["C. Cao su nhân tạo kém hoàn toàn thiên nhiên", "Sai"], ["D. Là vật liệu phi kim, đàn hồi tốt", "Đúng"]] },
         { t: "ĐÚNG/SAI", q: "Câu 4. Về mẫu vật thí nghiệm:", isTF: true, rows: [["A. Phải có tính chất cơ, lí, hoá", "Đúng"], ["B. Composite sợi thuỷ tinh cách điện tốt", "Đúng"], ["C. Gốm sứ thuộc nhóm vật liệu mới", "Đúng"], ["D. Thép carbon là vật liệu phi kim", "Sai"]] },
 
-        // PHẦN III: TỰ LUẬN (Cập nhật chuẩn theo file HDC)
-        { t: "TỰ LUẬN", q: "Câu 1. Ứng dụng của vật liệu nano trong cơ khí?", a: "Hướng dẫn chấm chi tiết:", e: "• Chế tạo các chi tiết máy có độ bền cao, chống mài mòn (0,25đ).<br>• Chế tạo các ổ trượt siêu nhỏ cho các trục chống mài mòn (0,25đ).<br>• Dùng làm các lớp phủ lên chi tiết máy để chống ăn mòn (0,25đ).<br>• Tăng độ bền và độ cứng cho các linh kiện (0,25đ)." },
-        { t: "TỰ LUẬN", q: "Câu 2. Lập quy trình gia công chi tiết bậc trục (10 cái)?", a: "Quy trình gia công chuẩn:", e: "<strong>Bước 1:</strong> Tìm hiểu chi tiết (Thép, 3 bậc Ø, đơn chiếc).<br><strong>Bước 2:</strong> Chọn phôi (Thép thanh) & phương pháp chế tạo phôi.<br><strong>Bước 3:</strong> Trình tự các bước:<br>1. Tiện khỏa mặt đầu.<br>2. Tiện trụ Ø20 dài 10mm.<br>3. Tiện rãnh trụ Ø18 dài 10mm.<br>4. Vát mép.<br>5. Đảo đầu và tiện khỏa mặt đầu còn lại.<br>6. Tiện trụ Ø20 dài 10mm còn lại.<br>7. Vát mép cuối." },
-        { t: "TỰ LUẬN", q: "Câu 3. Giai đoạn xử lý cơ tính và bảo vệ bề mặt?", a: "Phân tích:", e: "Đây là bước cuối cùng nhằm tăng độ cứng bề mặt, chống gỉ sét và tăng tính thẩm mỹ cho sản phẩm cơ khí sau khi gia công cắt gọt." }
+        // PHẦN III: 3 CÂU TỰ LUẬN
+        { t: "TỰ LUẬN", q: "Câu 1. Trong lĩnh vực cơ khí, vật liệu nano có những ứng dụng nào?", a: "Hướng dẫn chấm (1.0 điểm):", e: "• Chế tạo các chi tiết máy có độ bền cao, chống mài mòn. (0,25đ)<br>• Chế tạo các ổ trượt siêu nhỏ cho các trục để chống mài mòn. (0,25đ)<br>• Dùng làm các lớp phủ lên chi tiết máy để chống ăn mòn. (0,25đ)<br>• Tăng độ bền và độ cứng cho các linh kiện. (0,25đ)" },
+        { t: "TỰ LUẬN", q: "Câu 2. Lập quy trình gia công chi tiết bậc trục (10 cái)?", a: "Quy trình gia công chi tiết:", e: "<strong>Bước 1 (0,25đ):</strong> Tìm hiểu chi tiết (thép, 3 bậc Ø, đơn chiếc).<br><strong>Bước 2 (0,25đ):</strong> Chọn phôi và phương pháp chế tạo phôi.<br><strong>Bước 3 (0,5đ):</strong> Trình tự: 1. Tiện khỏa mặt đầu -> 2. Tiện trụ Ø20 dài 10mm -> 3. Tiện rãnh Ø18 dài 10mm -> 4. Vát mép -> 5. Đảo đầu tiện khỏa mặt đầu -> 6. Tiện trụ Ø20 dài 10mm -> 7. Vát mép." },
+        { t: "TỰ LUẬN", q: "Câu 3. Phân tích giai đoạn xử lí cơ tính và bảo vệ bề mặt vỏ ô tô trong sản xuất cơ khí?", a: "Nội dung phân tích (1.0 điểm):", e: `
+            • <strong>Bản chất:</strong> Sử dụng các biện pháp kĩ thuật khác nhau để thay đổi cơ tính và chất lượng bề mặt chi tiết nhằm đáp ứng các yêu cầu kĩ thuật của chi tiết và sản phẩm cơ khí. (0.25đ)<br><br>
+            • <strong>Phương pháp xử lí:</strong> Phương pháp xử lí nhiệt; phương pháp hoá học; Phương pháp xử lí bảo vệ bề mặt... (0.25đ)<br><br>
+            • <strong>Yêu cầu:</strong> Độ cứng, độ lớn và độ nhẵn bóng hoặc chất lượng của lớp bảo vệ của ô tô... (0.25đ)<br><br>
+            • <strong>Kiểm tra chất lượng sản phẩm:</strong> Sử dụng máy đo độ cứng, máy đo nhám bề mặt,... để kiểm tra chất lượng sản phẩm sau xử lí. (0.25đ)
+        ` }
     ];
 
     let current = 0;
@@ -117,7 +122,7 @@
         let currentS = "";
         data.forEach((item, i) => {
             if(item.t !== currentS) { currentS = item.t; nav.innerHTML += `<li class="section-title">${currentS}</li>`; }
-            nav.innerHTML += `<li class="nav-item" id="nav-${i}" onclick="goTo(${i})"><i class="fas fa-edit"></i> Câu ${i+1}</li>`;
+            nav.innerHTML += `<li class="nav-item" id="nav-${i}" onclick="goTo(${i})"><i class="fas fa-file-signature"></i> Câu ${i+1}</li>`;
         });
         update();
     }
@@ -132,11 +137,11 @@
         const extra = document.getElementById('q-extra');
         extra.innerHTML = "";
         if(item.isTF) {
-            let table = `<table><tr><th>Nhận định</th><th>Đáp án</th></tr>`;
+            let table = `<table><tr><th>Nhận định</th><th style="width:150px">Đáp án</th></tr>`;
             item.rows.forEach(r => table += `<tr><td>${r[0]}</td><td class="st-${r[1]=='Đúng'?'true':'false'}">${r[1]}</td></tr>`);
             extra.innerHTML = table + `</table>`;
         }
-        document.getElementById('ans-val').innerText = item.a || "";
+        document.getElementById('ans-val').innerText = item.a;
         document.getElementById('exp-val').innerHTML = item.e;
     }
     function goTo(i) { current = i; update(); }
